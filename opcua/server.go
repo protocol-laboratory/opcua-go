@@ -3,6 +3,7 @@ package opcua
 import (
 	"fmt"
 	"net"
+	"sync"
 )
 
 type ServerConfig struct {
@@ -17,11 +18,15 @@ func (s *ServerConfig) addr() string {
 type Server struct {
 	config   *ServerConfig
 	listener net.Listener
+
+	mutex sync.RWMutex
+	quit  chan bool
 }
 
 func NewServer(config *ServerConfig) *Server {
 	server := &Server{
 		config: config,
+		quit:   make(chan bool),
 	}
 	return server
 }
@@ -41,12 +46,45 @@ func (s *Server) Run() (int, error) {
 		s.config.Port = actualAddr.Port
 	}
 
+	s.mutex.Lock()
 	s.listener = listener
+	s.mutex.Unlock()
+
+	go s.listenLoop()
 
 	return actualAddr.Port, nil
 }
 
+func (s *Server) listenLoop() {
+	s.mutex.RLock()
+	listener := s.listener
+	s.mutex.RUnlock()
+	if listener == nil {
+		return
+	}
+	for {
+		netConn, err := listener.Accept()
+		if err != nil {
+			select {
+			case <-s.quit:
+				return
+			default:
+				continue
+			}
+		}
+		go func() {
+			s.handleConn(netConn)
+		}()
+	}
+}
+
+func (s *Server) handleConn(conn net.Conn) {
+}
+
 func (s *Server) Close() error {
+	close(s.quit)
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 	if s.listener == nil {
 		return nil
 	}
