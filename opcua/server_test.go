@@ -3,13 +3,15 @@ package opcua
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"log/slog"
 	"testing"
 )
 
 func TestStartWithZeroPort(t *testing.T) {
 	config := &ServerConfig{
-		Host: "localhost",
-		Port: 0,
+		Host:   "localhost",
+		Port:   0,
+		logger: slog.Default(),
 	}
 
 	server := NewServer(config)

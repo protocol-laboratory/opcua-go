@@ -2,6 +2,7 @@ package opcua
 
 import (
 	"fmt"
+	"log/slog"
 	"net"
 	"sync"
 )
@@ -9,6 +10,8 @@ import (
 type ServerConfig struct {
 	Host string
 	Port int
+
+	logger *slog.Logger
 }
 
 func (s *ServerConfig) addr() string {
@@ -19,6 +22,8 @@ type Server struct {
 	config   *ServerConfig
 	listener net.Listener
 
+	logger *slog.Logger
+
 	mutex sync.RWMutex
 	quit  chan bool
 }
@@ -27,7 +32,9 @@ func NewServer(config *ServerConfig) *Server {
 	server := &Server{
 		config: config,
 		quit:   make(chan bool),
+		logger: config.logger,
 	}
+	server.logger.Info("server initialized", slog.String("host", config.Host), slog.Int("port", config.Port))
 	return server
 }
 
@@ -91,6 +98,7 @@ func (s *Server) Close() error {
 	err := s.listener.Close()
 	s.listener = nil
 	if err == nil {
+		s.logger.Info("server closed successfully")
 		return nil
 	}
 	return fmt.Errorf("failed to close listener: %w", err)
