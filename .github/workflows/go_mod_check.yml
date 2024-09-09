@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v4
         with:
-          go-version: '1.20'
+          go-version: '1.21'
       - name: Run Go Mod Check Action
         uses: Shoothzj/go-mod-check-action@main
         with:
