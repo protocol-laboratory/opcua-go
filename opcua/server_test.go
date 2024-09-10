@@ -11,7 +11,7 @@ func TestStartWithZeroPort(t *testing.T) {
 	config := &ServerConfig{
 		Host:   "localhost",
 		Port:   0,
-		logger: slog.Default(),
+		Logger: slog.Default(),
 	}
 
 	server := NewServer(config)

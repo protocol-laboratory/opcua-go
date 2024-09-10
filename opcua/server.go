@@ -1,17 +1,24 @@
 package opcua
 
 import (
+	"encoding/binary"
 	"fmt"
+	"github.com/shoothzj/gox/buffer"
 	"log/slog"
 	"net"
 	"sync"
+	"time"
 )
 
 type ServerConfig struct {
 	Host string
 	Port int
 
-	logger *slog.Logger
+	ReceiverBufferSize int
+
+	ReadTimeout time.Duration
+
+	Logger *slog.Logger
 }
 
 func (s *ServerConfig) addr() string {
@@ -32,7 +39,7 @@ func NewServer(config *ServerConfig) *Server {
 	server := &Server{
 		config: config,
 		quit:   make(chan bool),
-		logger: config.logger,
+		logger: config.Logger,
 	}
 	server.logger.Info("server initialized", slog.String("host", config.Host), slog.Int("port", config.Port))
 	return server
@@ -80,12 +87,56 @@ func (s *Server) listenLoop() {
 			}
 		}
 		go func() {
-			s.handleConn(netConn)
+			s.handleConn(&opcuaConn{
+				conn:   netConn,
+				buffer: buffer.NewBuffer(s.config.ReceiverBufferSize),
+			})
 		}()
 	}
 }
 
-func (s *Server) handleConn(conn net.Conn) {
+type opcuaConn struct {
+	conn   net.Conn
+	buffer *buffer.Buffer
+}
+
+func (s *Server) handleConn(conn *opcuaConn) {
+	for {
+		if s.config.ReadTimeout > 0 {
+			_ = conn.conn.SetReadDeadline(time.Now().Add(s.config.ReadTimeout))
+		}
+		readLen, err := conn.conn.Read(conn.buffer.WritableSlice())
+		if err != nil {
+			break
+		}
+		err = conn.buffer.AdjustWriteCursor(readLen)
+		if err != nil {
+			break
+		}
+		for {
+			if conn.buffer.Size() < 8 {
+				break
+			}
+
+			header := make([]byte, 8)
+			_, err = conn.buffer.Peek(header)
+			if err != nil {
+				break
+			}
+
+			messageLen := int(binary.LittleEndian.Uint32(header[4:8]))
+
+			if conn.buffer.Size() < messageLen {
+				break
+			}
+
+			bytes := make([]byte, messageLen)
+			err = conn.buffer.ReadExactly(bytes)
+			if err != nil {
+				break
+			}
+		}
+	}
 }
 
 func (s *Server) Close() error {
