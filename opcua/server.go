@@ -119,7 +119,7 @@ func (s *Server) handleConn(conn *opcuaConn) {
 			}
 
 			header := make([]byte, 8)
-			_, err = conn.buffer.Peek(header)
+			err = conn.buffer.PeekExactly(header)
 			if err != nil {
 				break
 			}
@@ -132,6 +132,7 @@ func (s *Server) handleConn(conn *opcuaConn) {
 
 			bytes := make([]byte, messageLen)
 			err = conn.buffer.ReadExactly(bytes)
+			conn.buffer.Compact()
 			if err != nil {
 				break
 			}
