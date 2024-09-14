@@ -7,11 +7,13 @@ type ClientConfig struct {
 }
 
 type Client struct {
+	config *ClientConfig
 	logger *slog.Logger
 }
 
 func NewClient(config *ClientConfig) *Client {
 	client := &Client{
+		config: config,
 		logger: config.logger,
 	}
 	return client
