@@ -3,7 +3,7 @@ module opcua-go
 go 1.21
 
 require (
-	github.com/shoothzj/gox v0.0.3-0.20240914162741-a7541b79fa6f
+	github.com/shoothzj/gox v0.0.3-0.20240915030409-0ff3ac4e657c
 	github.com/stretchr/testify v1.9.0
 )
 
