@@ -11,34 +11,34 @@ type MessageHello struct {
 	EndpointUrl       string
 }
 
-func DecodeMessageHello(buf *buffer.Buffer) (resp *MessageHello, err error) {
-	resp = &MessageHello{}
-	resp.Version, err = buf.ReadUInt32Le()
+func DecodeMessageHello(buf *buffer.Buffer) (msg *MessageHello, err error) {
+	msg = &MessageHello{}
+	msg.Version, err = buf.ReadUInt32Le()
 	if err != nil {
 		return nil, err
 	}
-	resp.ReceiveBufferSize, err = buf.ReadUInt32Le()
+	msg.ReceiveBufferSize, err = buf.ReadUInt32Le()
 	if err != nil {
 		return nil, err
 	}
-	resp.SendBufferSize, err = buf.ReadUInt32Le()
+	msg.SendBufferSize, err = buf.ReadUInt32Le()
 	if err != nil {
 		return nil, err
 	}
-	resp.MaxMessageSize, err = buf.ReadUInt32Le()
+	msg.MaxMessageSize, err = buf.ReadUInt32Le()
 	if err != nil {
 		return nil, err
 	}
-	resp.MaxChunkCount, err = buf.ReadUInt32Le()
+	msg.MaxChunkCount, err = buf.ReadUInt32Le()
 	if err != nil {
 		return nil, err
 	}
-	resp.EndpointUrl, err = buf.ReadString()
+	msg.EndpointUrl, err = buf.ReadStringLe()
 	if err != nil {
 		return nil, err
 	}
 
-	return resp, nil
+	return msg, nil
 }
 
 func (m *MessageHello) Length() int {
@@ -51,8 +51,7 @@ func (m *MessageHello) Length() int {
 	length += LenSendBufferSize
 	length += LenMaxMessageSize
 	length += LenMaxChunkCount
-	length += LenStringLen
-	length += len(m.EndpointUrl)
+	length += StrLen(m.EndpointUrl)
 	return length
 }
 
@@ -80,9 +79,6 @@ func (m *MessageHello) Buffer() (*buffer.Buffer, error) {
 		return nil, err
 	}
 	if err := buf.PutUInt32Le(m.MaxChunkCount); err != nil {
-		return nil, err
-	}
-	if err := buf.PutUInt32Le(uint32(len(m.EndpointUrl))); err != nil {
 		return nil, err
 	}
 	if err := buf.PutStringLe(m.EndpointUrl); err != nil {

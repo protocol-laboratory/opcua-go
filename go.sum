@@ -2,8 +2,6 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/shoothzj/gox v0.0.4-0.20240916070027-2e4a2098d749 h1:yytTUCM7e17ADriGwcEaWdQ63ocmsdDGH+Qj979gNF8=
-github.com/shoothzj/gox v0.0.4-0.20240916070027-2e4a2098d749/go.mod h1:JrD7u6Tem/9Ut4o0kQNK+aZkMWCba/d9VeabBZSEDT4=
 github.com/shoothzj/gox v0.0.4-0.20240916105254-02a0a7039d5d h1:oUVTx1ezGfBFkfRb192K+FFRAjjBX5u58qkbXEHfTdo=
 github.com/shoothzj/gox v0.0.4-0.20240916105254-02a0a7039d5d/go.mod h1:JrD7u6Tem/9Ut4o0kQNK+aZkMWCba/d9VeabBZSEDT4=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
