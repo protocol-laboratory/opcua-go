@@ -10,29 +10,29 @@ type MessageAcknowledge struct {
 	MaxChunkCount     uint32
 }
 
-func DecodeMessageAcknowledge(buf *buffer.Buffer) (resp *MessageAcknowledge, err error) {
-	resp = &MessageAcknowledge{}
-	resp.Version, err = buf.ReadUInt32Le()
+func DecodeMessageAcknowledge(buf *buffer.Buffer) (msg *MessageAcknowledge, err error) {
+	msg = &MessageAcknowledge{}
+	msg.Version, err = buf.ReadUInt32Le()
 	if err != nil {
 		return nil, err
 	}
-	resp.ReceiveBufferSize, err = buf.ReadUInt32Le()
+	msg.ReceiveBufferSize, err = buf.ReadUInt32Le()
 	if err != nil {
 		return nil, err
 	}
-	resp.SendBufferSize, err = buf.ReadUInt32Le()
+	msg.SendBufferSize, err = buf.ReadUInt32Le()
 	if err != nil {
 		return nil, err
 	}
-	resp.MaxMessageSize, err = buf.ReadUInt32Le()
+	msg.MaxMessageSize, err = buf.ReadUInt32Le()
 	if err != nil {
 		return nil, err
 	}
-	resp.MaxChunkCount, err = buf.ReadUInt32Le()
+	msg.MaxChunkCount, err = buf.ReadUInt32Le()
 	if err != nil {
 		return nil, err
 	}
-	return resp, nil
+	return msg, nil
 }
 
 func (m *MessageAcknowledge) Length() int {
