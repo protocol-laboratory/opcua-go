@@ -2,6 +2,7 @@ package opcua
 
 import (
 	"crypto/tls"
+	"encoding/binary"
 	"fmt"
 	"github.com/shoothzj/gox/buffer"
 	"github.com/shoothzj/gox/netx"
@@ -21,8 +22,8 @@ type ClientConfig struct {
 }
 
 type sendRequest struct {
-	bytes    []byte
-	callback func([]byte, error)
+	buf      *buffer.Buffer
+	callback func(*buffer.Buffer, error)
 }
 
 type Client struct {
@@ -36,12 +37,24 @@ type Client struct {
 	closeCh      chan struct{}
 }
 
-func (c *Client) Send(bytes []byte) ([]byte, error) {
+func (c *Client) Hello(message *MessageHello) (*MessageAcknowledge, error) {
+	buf, err := message.Buffer()
+	if err != nil {
+		return nil, err
+	}
+	bufResp, err := c.Send(buf)
+	if err != nil {
+		return nil, err
+	}
+	return DecodeMessageAcknowledge(bufResp)
+}
+
+func (c *Client) Send(buf *buffer.Buffer) (*buffer.Buffer, error) {
 	wg := sync.WaitGroup{}
 	wg.Add(1)
-	var result []byte
+	var result *buffer.Buffer
 	var err error
-	c.sendAsync(bytes, func(resp []byte, e error) {
+	c.sendAsync(buf, func(resp *buffer.Buffer, e error) {
 		result = resp
 		err = e
 		wg.Done()
@@ -53,9 +66,9 @@ func (c *Client) Send(bytes []byte) ([]byte, error) {
 	return result, nil
 }
 
-func (c *Client) sendAsync(bytes []byte, callback func([]byte, error)) {
+func (c *Client) sendAsync(buf *buffer.Buffer, callback func(*buffer.Buffer, error)) {
 	sr := &sendRequest{
-		bytes:    bytes,
+		buf:      buf,
 		callback: callback,
 	}
 	c.eventsChan <- sr
@@ -77,19 +90,18 @@ func (c *Client) read() {
 				c.closeCh <- struct{}{}
 				break
 			}
-			if c.buffer.Size() < 4 {
+			if c.buffer.ReadableSize() < 8 {
 				continue
 			}
-			bytes := make([]byte, 4)
-			err = c.buffer.ReadExactly(bytes)
-			c.buffer.Compact()
+			bytes := make([]byte, 8)
+			err = c.buffer.PeekExactly(bytes)
 			if err != nil {
 				req.callback(nil, err)
 				c.closeCh <- struct{}{}
 				break
 			}
-			length := int(bytes[3]) | int(bytes[2])<<8 | int(bytes[1])<<16 | int(bytes[0])<<24
-			if c.buffer.Size() < length {
+			length := int(binary.LittleEndian.Uint32(bytes[4:8]))
+			if c.buffer.ReadableSize() < length {
 				continue
 			}
 			// in case ddos attack
@@ -106,7 +118,7 @@ func (c *Client) read() {
 				break
 			}
 			c.buffer.Compact()
-			req.callback(data, nil)
+			req.callback(buffer.NewBufferFromBytes(data), nil)
 		case <-c.closeCh:
 			return
 		}
@@ -117,14 +129,20 @@ func (c *Client) write() {
 	for {
 		select {
 		case req := <-c.eventsChan:
-			n, err := c.conn.Write(req.bytes)
+			bytes, err := req.buf.ReadNBytes(req.buf.ReadableSize())
 			if err != nil {
 				req.callback(nil, err)
 				c.closeCh <- struct{}{}
 				break
 			}
-			if n != len(req.bytes) {
-				req.callback(nil, fmt.Errorf("write %d bytes, but expect %d bytes", n, len(req.bytes)))
+			n, err := c.conn.Write(bytes)
+			if err != nil {
+				req.callback(nil, err)
+				c.closeCh <- struct{}{}
+				break
+			}
+			if n != len(bytes) {
+				req.callback(nil, fmt.Errorf("write %d bytes, but expect %d bytes", n, len(bytes)))
 				c.closeCh <- struct{}{}
 				break
 			}
