@@ -33,20 +33,9 @@ func DecodeMessageHello(buf *buffer.Buffer) (resp *MessageHello, err error) {
 	if err != nil {
 		return nil, err
 	}
-
-	var endpointUrlLength uint32
-	endpointUrlLength, err = buf.ReadUInt32Le()
+	resp.EndpointUrl, err = buf.ReadString()
 	if err != nil {
 		return nil, err
-	}
-
-	if endpointUrlLength > 0 {
-		var endpointUrlBytes []byte
-		endpointUrlBytes, err = buf.ReadNBytes(int(endpointUrlLength))
-		if err != nil {
-			return nil, err
-		}
-		resp.EndpointUrl = string(endpointUrlBytes)
 	}
 
 	return resp, nil
@@ -96,7 +85,7 @@ func (m *MessageHello) Buffer() (*buffer.Buffer, error) {
 	if err := buf.PutUInt32Le(uint32(len(m.EndpointUrl))); err != nil {
 		return nil, err
 	}
-	if _, err := buf.Write([]byte(m.EndpointUrl)); err != nil {
+	if err := buf.PutStringLe(m.EndpointUrl); err != nil {
 		return nil, err
 	}
 	return buf, nil
