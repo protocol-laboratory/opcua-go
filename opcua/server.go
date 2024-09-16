@@ -114,7 +114,7 @@ func (s *Server) handleConn(conn *opcuaConn) {
 			break
 		}
 		for {
-			if conn.buffer.Size() < 8 {
+			if conn.buffer.ReadableSize() < 8 {
 				break
 			}
 
@@ -126,16 +126,28 @@ func (s *Server) handleConn(conn *opcuaConn) {
 
 			messageLen := int(binary.LittleEndian.Uint32(header[4:8]))
 
-			if conn.buffer.Size() < messageLen {
+			if conn.buffer.ReadableSize() < messageLen {
 				break
 			}
 
 			bytes := make([]byte, messageLen)
 			err = conn.buffer.ReadExactly(bytes)
-			conn.buffer.Compact()
 			if err != nil {
 				break
 			}
+			dstBytes, err := s.react(conn, bytes)
+			if err != nil {
+				s.logger.Error("failed to react", slog.String("error", err.Error()))
+				break
+			}
+			write, err := conn.conn.Write(dstBytes)
+			if err != nil {
+				break
+			}
+			if write != len(dstBytes) {
+				break
+			}
+			conn.buffer.Compact()
 		}
 	}
 }
@@ -154,4 +166,44 @@ func (s *Server) Close() error {
 		return nil
 	}
 	return fmt.Errorf("failed to close listener: %w", err)
+}
+
+func (s *Server) react(conn *opcuaConn, bytes []byte) ([]byte, error) {
+	if len(bytes) < 3 {
+		return nil, fmt.Errorf("invalid message length")
+	}
+
+	messageType := string(bytes[:3])
+
+	s.logger.Info("received message", slog.String("type", messageType))
+
+	var buf *buffer.Buffer
+	var err error
+	switch messageType {
+	case "HEL":
+		buf, err = s.handleHello(bytes[4:])
+	default:
+		return nil, fmt.Errorf("unknown message type: %s", messageType)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return buf.ReadAll(), nil
+}
+
+// handleHello Handle "HEL" (Hello Message)
+func (s *Server) handleHello(bytes []byte) (*buffer.Buffer, error) {
+	req, err := DecodeMessageHello(buffer.NewBufferFromBytes(bytes))
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode HEL message: %w", err)
+	}
+
+	ack := &MessageAcknowledge{
+		Version:           req.Version,
+		ReceiveBufferSize: req.ReceiveBufferSize,
+		SendBufferSize:    req.SendBufferSize,
+		MaxMessageSize:    req.MaxMessageSize,
+		MaxChunkCount:     64,
+	}
+	return ack.Buffer()
 }
