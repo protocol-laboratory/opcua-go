@@ -177,6 +177,8 @@ func NewClient(config *ClientConfig) (*Client, error) {
 		config.BufferMax = 512 * 1024
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+
 	client := &Client{
 		config: config,
 		logger: config.Logger,
@@ -185,6 +187,8 @@ func NewClient(config *ClientConfig) (*Client, error) {
 		eventsChan:   make(chan *sendRequest, config.SendQueueSize),
 		pendingQueue: make(chan *sendRequest, config.PendingQueueSize),
 		buffer:       buffer.NewBuffer(config.BufferMax),
+		ctx:          ctx,
+		ctxCancel:    cancel,
 	}
 	go func() {
 		client.read()
