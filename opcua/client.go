@@ -65,6 +65,10 @@ func (c *Client) Send(buf *buffer.Buffer) (*buffer.Buffer, error) {
 	if err != nil {
 		return nil, err
 	}
+	err = result.Skip(8)
+	if err != nil {
+		return nil, err
+	}
 	return result, nil
 }
 
