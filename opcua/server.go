@@ -35,14 +35,20 @@ type Server struct {
 	quit  chan bool
 }
 
-func NewServer(config *ServerConfig) *Server {
+func NewServer(config *ServerConfig) (*Server, error) {
+	if config.ReceiverBufferSize == 0 {
+		config.ReceiverBufferSize = 1024
+	}
+	if config.ReceiverBufferSize < 9 {
+		return nil, fmt.Errorf("receiver buffer size must be at least 9 bytes")
+	}
 	server := &Server{
 		config: config,
 		quit:   make(chan bool),
 		logger: config.Logger,
 	}
 	server.logger.Info("server initialized", slog.String("host", config.Host), slog.Int("port", config.Port))
-	return server
+	return server, nil
 }
 
 func (s *Server) Run() (int, error) {
@@ -181,7 +187,7 @@ func (s *Server) react(conn *opcuaConn, bytes []byte) ([]byte, error) {
 	var err error
 	switch messageType {
 	case "HEL":
-		buf, err = s.handleHello(bytes[4:])
+		buf, err = s.handleHello(bytes[8:])
 	default:
 		return nil, fmt.Errorf("unknown message type: %s", messageType)
 	}

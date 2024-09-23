@@ -14,7 +14,7 @@ func main() {
 
 	config := &opcua.ClientConfig{
 		Address: netx.Address{
-			Host: "127.0.0.1",
+			Host: "localhost",
 			Port: 4840,
 		},
 		Logger: logger,

@@ -13,14 +13,18 @@ func main() {
 	logger := slog.Default()
 
 	config := &opcua.ServerConfig{
-		Host:               "127.0.0.1",
+		Host:               "localhost",
 		Port:               4840,
 		ReceiverBufferSize: 1024,
 		ReadTimeout:        5 * time.Second,
 		Logger:             logger,
 	}
 
-	server := opcua.NewServer(config)
+	server, err := opcua.NewServer(config)
+	if err != nil {
+		logger.Error("Failed to create server", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
 
 	port, err := server.Run()
 	if err != nil {
