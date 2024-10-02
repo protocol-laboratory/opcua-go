@@ -1,16 +1,18 @@
-package opcua
+package ua
 
-import "github.com/shoothzj/gox/buffer"
+import (
+	"github.com/shoothzj/gox/buffer"
+)
 
-type MessageReadResp struct {
+type MessageBrowseResp struct {
 }
 
-func DecodeMessageReadResp(buf *buffer.Buffer) (msg *MessageReadResp, err error) {
-	msg = &MessageReadResp{}
+func DecodeMessageBrowseResp(buf *buffer.Buffer) (msg *MessageBrowseResp, err error) {
+	msg = &MessageBrowseResp{}
 	return msg, nil
 }
 
-func (m *MessageReadResp) Length() int {
+func (m *MessageBrowseResp) Length() int {
 	length := 0
 	length += LenMessageType
 	length += LenChunkType
@@ -18,7 +20,7 @@ func (m *MessageReadResp) Length() int {
 	return length
 }
 
-func (m *MessageReadResp) Buffer() (*buffer.Buffer, error) {
+func (m *MessageBrowseResp) Buffer() (*buffer.Buffer, error) {
 	buf := buffer.NewBuffer(m.Length())
 	if _, err := buf.Write([]byte{'M', 'S', 'G'}); err != nil {
 		return nil, err

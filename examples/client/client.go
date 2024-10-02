@@ -4,6 +4,7 @@ import (
 	"github.com/shoothzj/gox/netx"
 	"log/slog"
 	"opcua-go/opcua"
+	"opcua-go/opcua/ua"
 	"os"
 	"os/signal"
 	"syscall"
@@ -26,7 +27,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	messageAcknowledge, err := client.Hello(&opcua.MessageHello{
+	messageAcknowledge, err := client.Hello(&ua.MessageHello{
 		Version:           0,
 		ReceiveBufferSize: 65535,
 		SendBufferSize:    65535,

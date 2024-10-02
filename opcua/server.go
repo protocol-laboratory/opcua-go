@@ -6,6 +6,7 @@ import (
 	"github.com/shoothzj/gox/buffer"
 	"log/slog"
 	"net"
+	"opcua-go/opcua/ua"
 	"sync"
 	"time"
 )
@@ -199,12 +200,12 @@ func (s *Server) react(conn *opcuaConn, bytes []byte) ([]byte, error) {
 
 // handleHello Handle "HEL" (Hello Message)
 func (s *Server) handleHello(bytes []byte) (*buffer.Buffer, error) {
-	req, err := DecodeMessageHello(buffer.NewBufferFromBytes(bytes))
+	req, err := ua.DecodeMessageHello(buffer.NewBufferFromBytes(bytes))
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode HEL message: %w", err)
 	}
 
-	ack := &MessageAcknowledge{
+	ack := &ua.MessageAcknowledge{
 		Version:           req.Version,
 		ReceiveBufferSize: req.ReceiveBufferSize,
 		SendBufferSize:    req.SendBufferSize,

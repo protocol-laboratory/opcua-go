@@ -1,4 +1,4 @@
-package opcua
+package ua
 
 const (
 	LenChunkType         = 1

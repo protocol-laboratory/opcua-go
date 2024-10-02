@@ -1,4 +1,4 @@
-package opcua
+package ua
 
 import (
 	"github.com/shoothzj/gox/testx"

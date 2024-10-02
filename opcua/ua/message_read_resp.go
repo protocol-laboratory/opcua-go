@@ -1,16 +1,18 @@
-package opcua
+package ua
 
-import "github.com/shoothzj/gox/buffer"
+import (
+	"github.com/shoothzj/gox/buffer"
+)
 
-type MessageCloseSessionReq struct {
+type MessageReadResp struct {
 }
 
-func DecodeMessageCloseSessionReq(buf *buffer.Buffer) (msg *MessageCloseSessionReq, err error) {
-	msg = &MessageCloseSessionReq{}
+func DecodeMessageReadResp(buf *buffer.Buffer) (msg *MessageReadResp, err error) {
+	msg = &MessageReadResp{}
 	return msg, nil
 }
 
-func (m *MessageCloseSessionReq) Length() int {
+func (m *MessageReadResp) Length() int {
 	length := 0
 	length += LenMessageType
 	length += LenChunkType
@@ -18,7 +20,7 @@ func (m *MessageCloseSessionReq) Length() int {
 	return length
 }
 
-func (m *MessageCloseSessionReq) Buffer() (*buffer.Buffer, error) {
+func (m *MessageReadResp) Buffer() (*buffer.Buffer, error) {
 	buf := buffer.NewBuffer(m.Length())
 	if _, err := buf.Write([]byte{'M', 'S', 'G'}); err != nil {
 		return nil, err
