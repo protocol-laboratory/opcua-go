@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"log/slog"
+	"opcua-go/opcua/ua"
 	"testing"
 )
 
@@ -81,7 +82,7 @@ func TestClientMessageHello(t *testing.T) {
 	simpleClientServer := newTestSimpleClientServer(t, serverConfig, clientConfig)
 	defer simpleClientServer.close()
 
-	messageAcknowledge, err := simpleClientServer.client.Hello(&MessageHello{
+	messageAcknowledge, err := simpleClientServer.client.Hello(&ua.MessageHello{
 		Version:           0,
 		ReceiveBufferSize: 65535,
 		SendBufferSize:    65535,

@@ -9,6 +9,7 @@ import (
 	"github.com/shoothzj/gox/netx"
 	"log/slog"
 	"net"
+	"opcua-go/opcua/ua"
 	"sync"
 )
 
@@ -39,7 +40,7 @@ type Client struct {
 	ctxCancel    context.CancelFunc
 }
 
-func (c *Client) Hello(message *MessageHello) (*MessageAcknowledge, error) {
+func (c *Client) Hello(message *ua.MessageHello) (*ua.MessageAcknowledge, error) {
 	buf, err := message.Buffer()
 	if err != nil {
 		return nil, err
@@ -48,7 +49,7 @@ func (c *Client) Hello(message *MessageHello) (*MessageAcknowledge, error) {
 	if err != nil {
 		return nil, err
 	}
-	return DecodeMessageAcknowledge(bufResp)
+	return ua.DecodeMessageAcknowledge(bufResp)
 }
 
 func (c *Client) Send(buf *buffer.Buffer) (*buffer.Buffer, error) {

@@ -1,6 +1,8 @@
-package opcua
+package ua
 
-import "github.com/shoothzj/gox/buffer"
+import (
+	"github.com/shoothzj/gox/buffer"
+)
 
 type MessageOpenSecureChannel struct {
 	SecureChannelId               uint32

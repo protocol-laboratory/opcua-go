@@ -1,16 +1,18 @@
-package opcua
+package ua
 
-import "github.com/shoothzj/gox/buffer"
+import (
+	"github.com/shoothzj/gox/buffer"
+)
 
-type MessageGetEndpointsReq struct {
+type MessageReadReq struct {
 }
 
-func DecodeMessageGetEndpointsReq(buf *buffer.Buffer) (msg *MessageGetEndpointsReq, err error) {
-	msg = &MessageGetEndpointsReq{}
+func DecodeMessageReadReq(buf *buffer.Buffer) (msg *MessageReadReq, err error) {
+	msg = &MessageReadReq{}
 	return msg, nil
 }
 
-func (m *MessageGetEndpointsReq) Length() int {
+func (m *MessageReadReq) Length() int {
 	length := 0
 	length += LenMessageType
 	length += LenChunkType
@@ -18,7 +20,7 @@ func (m *MessageGetEndpointsReq) Length() int {
 	return length
 }
 
-func (m *MessageGetEndpointsReq) Buffer() (*buffer.Buffer, error) {
+func (m *MessageReadReq) Buffer() (*buffer.Buffer, error) {
 	buf := buffer.NewBuffer(m.Length())
 	if _, err := buf.Write([]byte{'M', 'S', 'G'}); err != nil {
 		return nil, err
