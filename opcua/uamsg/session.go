@@ -1,9 +1,5 @@
 package uamsg
 
-import (
-	"time"
-)
-
 type CreateSessionRequest struct {
 	Header *RequestHeader
 	ClientDescription       *ApplicationDescription
@@ -12,14 +8,14 @@ type CreateSessionRequest struct {
 	SessionName             string
 	ClientNonce             []byte
 	ClientCertificate       []byte        // 客户端证书，自己配吧，就按照golang的来解析
-	RequestedSessionTimeout time.Duration // 编码的时候转为uint64
+	RequestedSessionTimeout Duration // 编码的时候转为uint64
 	MaxResponseMessageSize  uint32
 }
 
 type ApplicationDescription struct {
 	ApplicationUri      string
 	ProductUri          string
-	ApplicationName     LocalizedText
+	ApplicationName     *LocalizedText
 	ApplicationType     ApplicationTypeEnum
 	GatewayServerUri    string
 	DiscoveryProfileUri string
@@ -36,22 +32,22 @@ type CreateSessionResponse struct {
 	Header *ResponseHeader
 	SessionId                  *NodeId
 	AuthenticationToken        SessionAuthenticationToken
-	RevisedSessionTimeout      uint64 // 编码的时候转为uint64
+	RevisedSessionTimeout      Duration // 编码的时候转为uint64
 	ServerNonce                []byte
-	ServerCertificate          []byte // https://reference.opcfoundation.org/Core/Part4/v105/docs/7.3#_Ref182127421 结构不好定义
-	ServerEndpoints            []EndpointDescription
-	ServerSoftwareCertificates []SignedSoftwareCertificate
-	ServerSignature            SignatureData
+	ServerCertificate          []byte // https://reference.opcfoundation.org/Core/Part4/v105/docs/7.3#_Ref182127421 结构不好定义，但是实测模拟器提供的字段就是ASN.1 DER类型的数据
+	ServerEndpoints            []*EndpointDescription
+	ServerSoftwareCertificates []*SignedSoftwareCertificate
+	ServerSignature            *SignatureData
 	MaxRequestMessageSize      uint32
 }
 
 type EndpointDescription struct {
 	EndpointUrl         string
-	Server              ApplicationDescription
+	Server              *ApplicationDescription
 	ServerCertificate   []byte
 	SecurityMode        MessageSecurityModeEnum
 	SecurityPolicyUri   string
-	UserIdentityTokens  []UserTokenPolicy
+	UserIdentityTokens  []*UserTokenPolicy
 	TransportProfileUri string
 	SecurityLevel       byte
 }
@@ -76,11 +72,11 @@ type SignatureData struct {
 
 type ActivateSessionRequest struct {
 	Header *RequestHeader
-	ClientSignature            SignatureData
+	ClientSignature            *SignatureData
 	ClientSoftwareCertificates []SignedSoftwareCertificate
 	LocaleIds                  []LocalId
-	UserIdentityToken          *ExtensibleParameter
-	UserTokenSignature         SignatureData
+	UserIdentityToken          *ExtensionObject
+	UserTokenSignature         *SignatureData
 }
 
 type ExtensibleParameter struct {
@@ -89,6 +85,7 @@ type ExtensibleParameter struct {
 }
 
 type ActivateSessionResponse struct {
+	Header *ResponseHeader
 	ServerNonce     []byte
 	Results         []StatusCode
 	DiagnosticInfos []DiagnosticInfo

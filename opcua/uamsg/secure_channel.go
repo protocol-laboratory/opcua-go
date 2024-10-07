@@ -1,7 +1,7 @@
 package uamsg
 
 type OpenSecureChannelServiceRequest struct {
-	Header *RequestHeader
+	Header                *RequestHeader
 	ClientProtocolVersion uint32
 	RequestType           SecurityTokenRequestType
 	SecurityMode          MessageSecurityModeEnum
@@ -10,19 +10,16 @@ type OpenSecureChannelServiceRequest struct {
 }
 
 type OpenSecureChannelServiceResponse struct {
-	Header *ResponseHeader
+	Header                *ResponseHeader
 	ServerProtocolVersion uint32
-	SecurityToken         ChannelSecurityToken // todo 没找到这个定义，需要去查一查
-	SecureChannelId       uint32
-	TokenId               uint32
-	CreatedAt             uint64
-	RevisedLifetime       uint32
+	SecurityToken         *ChannelSecurityToken // todo 没找到这个定义，需要去查一查
 	ServerNonce           []byte //
 }
 
 type DiagnosticInfo struct {
-	NamespaceUri        int32
+	EncodingMask        DiagnosticInfoMaskEnum
 	SymbolicId          int32
+	NamespaceUri        int32
 	Locale              int32
 	LocalizedText       int32
 	AdditionalInfo      string
@@ -38,8 +35,8 @@ type ChannelSecurityToken struct {
 }
 
 type CloseSecureChannelRequest struct {
-	Header *RequestHeader
-	SecureChannelId BaseDataType
+	Header          *RequestHeader
+	SecureChannelId *uint32 `enc:"omitempty"` // 协议规范定义了这个字段,但是别家实现不涉及
 }
 
 type CloseSecureChannelResponse struct {
