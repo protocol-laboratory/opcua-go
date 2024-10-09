@@ -21,12 +21,8 @@ type Message struct {
 	*MessageHeader
 	SecurityHeader interface{}
 	*SequenceHeader
-	// Message的序列化需要先计算MessageService的大小，然后计算Header的值，最后完成整个序列化
-	// 解码则需要根据Header字段分析需要跳过什么内容
 	MessageBody interface{}
-
-	// 这个基本可以无视了，这个第一把先不搞
-	MessageFooter interface{}
+	MessageFooter interface{} // ignore
 }
 
 type MessageHeader struct {
@@ -60,7 +56,7 @@ type ErrorMessageExtras struct {
 type RequestHeader struct {
 	AuthenticationToken *NodeId // session创建后，需要服务端生成一个字符串，使用NodeId承载
 
-	Timestamp         uint64 // 编码为uint64 8个字节
+	Timestamp         uint64 
 	RequestHandle     IntegerId
 	ReturnDiagnostics uint32
 	AuditEntryId      string
@@ -69,7 +65,7 @@ type RequestHeader struct {
 }
 
 type ResponseHeader struct {
-	Timestamp          uint64 // 编码为uint64 8个字节
+	Timestamp          uint64 
 	RequestHandle      IntegerId
 	ServiceResult      StatusCode
 	ServiceDiagnostics *DiagnosticInfo
@@ -84,12 +80,12 @@ type QualifiedName struct {
 
 type NodeId struct {
 	EncodingType NodeIdEncodingType // indicate nodeId format
-	Namespace    uint16             // 这个字段在不同结构中长度不一样
+	Namespace    uint16
 	Identifier   interface{}
 }
 
 type ExpandedNodeId struct {
-	NodeId
+	*NodeId
 	NamespaceUri string
 	ServerIndex  uint32
 }
@@ -97,10 +93,9 @@ type ExpandedNodeId struct {
 type SessionAuthenticationToken interface{}
 
 type ExtensionObject struct {
-	TypeId   NodeId
+	TypeId   *NodeId
 	Encoding byte
-	Length   int32
-	Body     string // 可选字段
+	Body     string // optinal
 }
 
 type GenericBody struct {

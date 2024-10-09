@@ -7,8 +7,8 @@ type CreateSessionRequest struct {
 	EndpointUrl             string
 	SessionName             string
 	ClientNonce             []byte
-	ClientCertificate       []byte        // 客户端证书，自己配吧，就按照golang的来解析
-	RequestedSessionTimeout Duration // 编码的时候转为uint64
+	ClientCertificate       []byte        // ansi der format
+	RequestedSessionTimeout Duration
 	MaxResponseMessageSize  uint32
 }
 
@@ -32,7 +32,7 @@ type CreateSessionResponse struct {
 	Header *ResponseHeader
 	SessionId                  *NodeId
 	AuthenticationToken        SessionAuthenticationToken
-	RevisedSessionTimeout      Duration // 编码的时候转为uint64
+	RevisedSessionTimeout      Duration
 	ServerNonce                []byte
 	ServerCertificate          []byte // https://reference.opcfoundation.org/Core/Part4/v105/docs/7.3#_Ref182127421 结构不好定义，但是实测模拟器提供的字段就是ASN.1 DER类型的数据
 	ServerEndpoints            []*EndpointDescription

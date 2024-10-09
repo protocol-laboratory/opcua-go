@@ -137,7 +137,7 @@ func ExpandedNodeIdEncoder(v interface{}) ([]byte, error) {
 		return nil, fmt.Errorf("error type of ExpandedNodeId, %v", reflect.TypeOf(v).Name())
 	}
 
-	nodeIdBytes, err := NodeIdEncoder(value.NodeId)
+	nodeIdBytes, err := NodeIdEncoder(*value.NodeId)
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +162,7 @@ func ExtensionObjectEncoder(v interface{}) ([]byte, error) {
 		return nil, fmt.Errorf("error type of ExtensionObject, %v", reflect.TypeOf(v).Name())
 	}
 	buff := bytes.NewBuffer(nil)
-	typeIdBytes, err := NodeIdEncoder(value.TypeId)
+	typeIdBytes, err := NodeIdEncoder(*value.TypeId)
 	if err != nil {
 		return nil, err
 	}
@@ -191,36 +191,36 @@ func DiagnosticInfoEncoder(v interface{}) ([]byte, error) {
 	}
 	buff := bytes.NewBuffer(nil)
 	buff.WriteByte(value.EncodingMask)
-	switch {
-	case value.EncodingMask&uamsg.SymbolicIdFlag != 0:
+
+	// todo 优化，链式模式
+	if value.EncodingMask&uamsg.SymbolicIdFlag != 0 {
 		binary.Write(buff, binary.LittleEndian, value.SymbolicId)
-		fallthrough
-	case value.EncodingMask&uamsg.NamespaceFlag != 0:
+	}
+	if value.EncodingMask&uamsg.NamespaceFlag != 0 {
 		binary.Write(buff, binary.LittleEndian, value.NamespaceUri)
-		fallthrough
-	case value.EncodingMask&uamsg.LocaleFlag != 0:
+	}
+	if value.EncodingMask&uamsg.LocaleFlag != 0 {
 		binary.Write(buff, binary.LittleEndian, value.Locale)
-		fallthrough
-	case value.EncodingMask&uamsg.LocalizedTextFlag != 0:
+	}
+	if value.EncodingMask&uamsg.LocalizedTextFlag != 0 {
 		binary.Write(buff, binary.LittleEndian, value.LocalizedText)
-		fallthrough
-	case value.EncodingMask&uamsg.AdditionalInfoFlag != 0:
+	}
+	if value.EncodingMask&uamsg.AdditionalInfoFlag != 0 {
 		tempBytes, err := StringEncoder(value.AdditionalInfo)
 		if err != nil {
 			return nil, err
 		}
 		binary.Write(buff, binary.LittleEndian, tempBytes)
-		fallthrough
-	case value.EncodingMask&uamsg.InnerStatusCodeFlag != 0:
+	}
+	if value.EncodingMask&uamsg.InnerStatusCodeFlag != 0 {
 		binary.Write(buff, binary.LittleEndian, value.InnerStatusCode)
-		fallthrough
-	case value.EncodingMask&uamsg.InnerDiagnosticInfoFlag != 0:
+	}
+	if value.EncodingMask&uamsg.InnerDiagnosticInfoFlag != 0 {
 		dataBytes, err := DiagnosticInfoEncoder(*value.InnerDiagnosticInfo)
 		if err != nil {
 			return nil, err
 		}
 		binary.Write(buff, binary.LittleEndian, dataBytes)
-	default:
 	}
 	return buff.Bytes(), nil
 }
@@ -232,26 +232,24 @@ func LocalizedTextEncoder(v interface{}) ([]byte, error) {
 	}
 	buff := bytes.NewBuffer(nil)
 	buff.WriteByte(value.EncodingMask)
-	switch {
-	case value.EncodingMask&0x01 != 0:
+
+	if value.EncodingMask&0x01 != 0 {
 		localeBytes, err := StringEncoder(value.Locale)
 		if err != nil {
 			return nil, err
 		}
 		buff.Write(localeBytes)
-		fallthrough
-	case value.EncodingMask&0x02 != 0:
+	}
+	if value.EncodingMask&0x02 != 0 {
 		textBytes, err := StringEncoder(value.Text)
 		if err != nil {
 			return nil, err
 		}
 		buff.Write(textBytes)
-	default:
-		return nil, errors.New("not support localized text mask type")
 	}
+
 	return buff.Bytes(), nil
 }
-
 
 func DataValueEncoder(v interface{}) ([]byte, error) {
 	value, ok := v.(uamsg.DataValue)
@@ -262,7 +260,7 @@ func DataValueEncoder(v interface{}) ([]byte, error) {
 	buff.WriteByte(value.EncodingMask)
 
 	// todo 优化写法
-	if (value.EncodingMask&0x01 != 0) {
+	if value.EncodingMask&0x01 != 0 {
 		tempBytes, err := VariantEncoder(*value.Value)
 		if err != nil {
 			return nil, err

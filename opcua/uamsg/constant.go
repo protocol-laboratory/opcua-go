@@ -13,6 +13,7 @@ var (
 type ChunkTypeEnum byte
 
 const (
+	AbortChunckType        ChunkTypeEnum = 'A'
 	IntermediateChunckType ChunkTypeEnum = 'C'
 	FinalChunckType        ChunkTypeEnum = 'F'
 )

@@ -12,8 +12,8 @@ type OpenSecureChannelServiceRequest struct {
 type OpenSecureChannelServiceResponse struct {
 	Header                *ResponseHeader
 	ServerProtocolVersion uint32
-	SecurityToken         *ChannelSecurityToken // todo 没找到这个定义，需要去查一查
-	ServerNonce           []byte //
+	SecurityToken         *ChannelSecurityToken
+	ServerNonce           []byte
 }
 
 type DiagnosticInfo struct {
@@ -35,8 +35,8 @@ type ChannelSecurityToken struct {
 }
 
 type CloseSecureChannelRequest struct {
-	Header          *RequestHeader
-	SecureChannelId *uint32 `enc:"omitempty"` // 协议规范定义了这个字段,但是别家实现不涉及
+	Header *RequestHeader
+	// SecureChannelId *uint32 `enc:"omitempty"` // 协议规范定义了这个字段,但是别家实现不涉及
 }
 
 type CloseSecureChannelResponse struct {

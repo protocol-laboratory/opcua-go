@@ -19,6 +19,13 @@ type Encoder interface {
 	SetSequanceNumberGenerator(func() uint32)
 }
 
+// 当前兜底逻辑用反射是按照协议实现的encoder
+// 后续可以根据测试数据，在性能瓶颈处的结构体上做加速
+// 需要结构体主动实现FastEncoder，按照自己的结构，快速完成解码，避免反射逻辑
+type FastEncoder interface {
+	FastEncode() ([]byte, error)
+}
+
 type DefaultEndocer struct {
 	sequanceNumberGenerator func() uint32
 }
@@ -165,6 +172,15 @@ func genericEncoder(v interface{}) ([]byte, error) {
 		}
 
 	case reflect.Struct:
+		if value.Type().Implements(reflect.TypeOf((*FastEncoder)(nil)).Elem()) {
+			// fast path
+			v, _ := value.Interface().(FastEncoder)
+			dataBytes, err := v.FastEncode()
+			if err != nil {
+				return nil, err
+			}
+			buff.Write(dataBytes)
+		}
 		encoder, ok := SpecialStructEncoderMap[value.Type().Name()]
 		if !ok {
 			for i := 0; i < value.NumField(); i++ {

@@ -90,7 +90,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 					},
 					MessageBody: &uamsg.GenericBody{
 						TypeId: &uamsg.ExpandedNodeId{
-							NodeId: uamsg.NodeId{
+							NodeId: &uamsg.NodeId{
 								EncodingType: uamsg.FourByte,
 								Namespace:    0,
 								Identifier:   uint16(446),
@@ -108,7 +108,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 								AuditEntryId:      "",
 								TimeoutHint:       10000,
 								AdditionalHeader: &uamsg.ExtensionObject{
-									TypeId: uamsg.NodeId{
+									TypeId: &uamsg.NodeId{
 										EncodingType: uamsg.TwoByte,
 										Identifier:   byte(0),
 									},
@@ -150,7 +150,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 					},
 					MessageBody: &uamsg.GenericBody{
 						TypeId: &uamsg.ExpandedNodeId{
-							NodeId: uamsg.NodeId{
+							NodeId: &uamsg.NodeId{
 								EncodingType: uamsg.FourByte,
 								Namespace:    0,
 								Identifier:   uint16(449),
@@ -166,7 +166,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 								},
 								StringTable: nil,
 								AdditionalHeader: &uamsg.ExtensionObject{
-									TypeId: uamsg.NodeId{
+									TypeId: &uamsg.NodeId{
 										EncodingType: uamsg.TwoByte,
 										Identifier:   byte(0),
 									},
@@ -209,7 +209,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 					},
 					MessageBody: &uamsg.GenericBody{
 						TypeId: &uamsg.ExpandedNodeId{
-							NodeId: uamsg.NodeId{
+							NodeId: &uamsg.NodeId{
 								EncodingType: uamsg.FourByte,
 								Namespace:    0,
 								Identifier:   uint16(461),
@@ -227,7 +227,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 								AuditEntryId:      "",
 								TimeoutHint:       10000,
 								AdditionalHeader: &uamsg.ExtensionObject{
-									TypeId: uamsg.NodeId{
+									TypeId: &uamsg.NodeId{
 										EncodingType: uamsg.TwoByte,
 										Identifier:   byte(0),
 									},
@@ -287,7 +287,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 					},
 					MessageBody: &uamsg.GenericBody{
 						TypeId: &uamsg.ExpandedNodeId{
-							NodeId: uamsg.NodeId{
+							NodeId: &uamsg.NodeId{
 								EncodingType: uamsg.FourByte,
 								Namespace:    0,
 								Identifier:   uint16(464),
@@ -303,7 +303,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 								},
 								StringTable: nil,
 								AdditionalHeader: &uamsg.ExtensionObject{
-									TypeId: uamsg.NodeId{
+									TypeId: &uamsg.NodeId{
 										EncodingType: uamsg.TwoByte,
 										Identifier:   byte(0),
 									},
@@ -1018,7 +1018,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 					},
 					MessageBody: &uamsg.GenericBody{
 						TypeId: &uamsg.ExpandedNodeId{
-							NodeId: uamsg.NodeId{
+							NodeId: &uamsg.NodeId{
 								EncodingType: uamsg.FourByte,
 								Namespace:    0,
 								Identifier:   uint16(467),
@@ -1037,7 +1037,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 								AuditEntryId:      "",
 								TimeoutHint:       10000,
 								AdditionalHeader: &uamsg.ExtensionObject{
-									TypeId: uamsg.NodeId{
+									TypeId: &uamsg.NodeId{
 										EncodingType: uamsg.TwoByte,
 										Identifier:   byte(0),
 									},
@@ -1051,7 +1051,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 							ClientSoftwareCertificates: nil,
 							LocaleIds:                  []uamsg.LocalId{"en-us"},
 							UserIdentityToken: &uamsg.ExtensionObject{
-								TypeId: uamsg.NodeId{
+								TypeId: &uamsg.NodeId{
 									EncodingType: uamsg.FourByte,
 									Namespace:    0,
 									Identifier:   uint16(321),
@@ -1091,7 +1091,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 					},
 					MessageBody: &uamsg.GenericBody{
 						TypeId: &uamsg.ExpandedNodeId{
-							NodeId: uamsg.NodeId{
+							NodeId: &uamsg.NodeId{
 								EncodingType: uamsg.FourByte,
 								Namespace:    0,
 								Identifier:   uint16(470),
@@ -1107,7 +1107,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 								},
 								StringTable: nil,
 								AdditionalHeader: &uamsg.ExtensionObject{
-									TypeId: uamsg.NodeId{
+									TypeId: &uamsg.NodeId{
 										EncodingType: uamsg.TwoByte,
 										Identifier:   byte(0),
 									},
@@ -1145,7 +1145,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 					},
 					MessageBody: &uamsg.GenericBody{
 						TypeId: &uamsg.ExpandedNodeId{
-							NodeId: uamsg.NodeId{
+							NodeId: &uamsg.NodeId{
 								EncodingType: uamsg.FourByte,
 								Namespace:    0,
 								Identifier:   uint16(631),
@@ -1164,7 +1164,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 								AuditEntryId:      "",
 								TimeoutHint:       10000,
 								AdditionalHeader: &uamsg.ExtensionObject{
-									TypeId: uamsg.NodeId{
+									TypeId: &uamsg.NodeId{
 										EncodingType: uamsg.TwoByte,
 										Identifier:   byte(0),
 									},
@@ -1216,7 +1216,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 					},
 					MessageBody: &uamsg.GenericBody{
 						TypeId: &uamsg.ExpandedNodeId{
-							NodeId: uamsg.NodeId{
+							NodeId: &uamsg.NodeId{
 								EncodingType: uamsg.FourByte,
 								Namespace:    0,
 								Identifier:   uint16(634),
@@ -1232,7 +1232,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 								},
 								StringTable: nil,
 								AdditionalHeader: &uamsg.ExtensionObject{
-									TypeId: uamsg.NodeId{
+									TypeId: &uamsg.NodeId{
 										EncodingType: uamsg.TwoByte,
 										Identifier:   byte(0),
 									},
@@ -1287,7 +1287,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 					},
 					MessageBody: &uamsg.GenericBody{
 						TypeId: &uamsg.ExpandedNodeId{
-							NodeId: uamsg.NodeId{
+							NodeId: &uamsg.NodeId{
 								EncodingType: uamsg.FourByte,
 								Namespace:    0,
 								Identifier:   uint16(631),
@@ -1306,7 +1306,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 								AuditEntryId:      "",
 								TimeoutHint:       10000,
 								AdditionalHeader: &uamsg.ExtensionObject{
-									TypeId: uamsg.NodeId{
+									TypeId: &uamsg.NodeId{
 										EncodingType: uamsg.TwoByte,
 										Identifier:   byte(0),
 									},
@@ -1358,7 +1358,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 					},
 					MessageBody: &uamsg.GenericBody{
 						TypeId: &uamsg.ExpandedNodeId{
-							NodeId: uamsg.NodeId{
+							NodeId: &uamsg.NodeId{
 								EncodingType: uamsg.FourByte,
 								Namespace:    0,
 								Identifier:   uint16(634),
@@ -1374,7 +1374,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 								},
 								StringTable: nil,
 								AdditionalHeader: &uamsg.ExtensionObject{
-									TypeId: uamsg.NodeId{
+									TypeId: &uamsg.NodeId{
 										EncodingType: uamsg.TwoByte,
 										Identifier:   byte(0),
 									},
@@ -1421,7 +1421,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 					},
 					MessageBody: &uamsg.GenericBody{
 						TypeId: &uamsg.ExpandedNodeId{
-							NodeId: uamsg.NodeId{
+							NodeId: &uamsg.NodeId{
 								EncodingType: uamsg.FourByte,
 								Namespace:    0,
 								Identifier:   uint16(473),
@@ -1440,7 +1440,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 								AuditEntryId:      "",
 								TimeoutHint:       10000,
 								AdditionalHeader: &uamsg.ExtensionObject{
-									TypeId: uamsg.NodeId{
+									TypeId: &uamsg.NodeId{
 										EncodingType: uamsg.TwoByte,
 										Identifier:   byte(0),
 									},
@@ -1476,7 +1476,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 					},
 					MessageBody: &uamsg.GenericBody{
 						TypeId: &uamsg.ExpandedNodeId{
-							NodeId: uamsg.NodeId{
+							NodeId: &uamsg.NodeId{
 								EncodingType: uamsg.FourByte,
 								Namespace:    0,
 								Identifier:   uint16(476),
@@ -1492,7 +1492,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 								},
 								StringTable: nil,
 								AdditionalHeader: &uamsg.ExtensionObject{
-									TypeId: uamsg.NodeId{
+									TypeId: &uamsg.NodeId{
 										EncodingType: uamsg.TwoByte,
 										Identifier:   byte(0),
 									},
@@ -1527,7 +1527,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 					},
 					MessageBody: &uamsg.GenericBody{
 						TypeId: &uamsg.ExpandedNodeId{
-							NodeId: uamsg.NodeId{
+							NodeId: &uamsg.NodeId{
 								EncodingType: uamsg.FourByte,
 								Namespace:    0,
 								Identifier:   uint16(452),
@@ -1545,7 +1545,7 @@ func TestDefaultEndocer_Encode(t *testing.T) {
 								AuditEntryId:      "",
 								TimeoutHint:       10000,
 								AdditionalHeader: &uamsg.ExtensionObject{
-									TypeId: uamsg.NodeId{
+									TypeId: &uamsg.NodeId{
 										EncodingType: uamsg.TwoByte,
 										Identifier:   byte(0),
 									},
