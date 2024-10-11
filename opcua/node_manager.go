@@ -1,6 +1,6 @@
 package opcua
 
-import "opcua-go/opcua/ua"
+import "github.com/protocol-laboratory/opcua-go/opcua/ua"
 
 type NodeManager struct {
 }

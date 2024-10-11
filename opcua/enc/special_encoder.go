@@ -5,9 +5,8 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"github.com/protocol-laboratory/opcua-go/opcua/uamsg"
 	"reflect"
-
-	"opcua-go/opcua/uamsg"
 )
 
 func StringEncoder(v interface{}) ([]byte, error) {

@@ -1,7 +1,7 @@
 package enc
 
 import (
-	"opcua-go/opcua/ua"
+	"github.com/protocol-laboratory/opcua-go/opcua/ua"
 )
 
 type Encoder interface {

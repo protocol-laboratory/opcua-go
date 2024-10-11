@@ -5,12 +5,14 @@ import (
 	"crypto/tls"
 	"encoding/binary"
 	"fmt"
-	"github.com/shoothzj/gox/buffer"
-	"github.com/shoothzj/gox/netx"
 	"log/slog"
 	"net"
-	"opcua-go/opcua/ua"
 	"sync"
+
+	"github.com/shoothzj/gox/buffer"
+	"github.com/shoothzj/gox/netx"
+
+	"github.com/protocol-laboratory/opcua-go/opcua/ua"
 )
 
 type ClientConfig struct {

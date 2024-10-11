@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/shoothzj/gox/netx"
 	"log/slog"
-	"opcua-go/opcua"
-	"opcua-go/opcua/ua"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/protocol-laboratory/opcua-go/opcua"
+	"github.com/protocol-laboratory/opcua-go/opcua/ua"
+	"github.com/shoothzj/gox/netx"
 )
 
 func main() {

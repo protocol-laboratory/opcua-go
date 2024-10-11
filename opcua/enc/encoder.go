@@ -4,10 +4,9 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"github.com/protocol-laboratory/opcua-go/opcua/uamsg"
 	"reflect"
 	"strings"
-
-	"opcua-go/opcua/uamsg"
 )
 
 var ErrValueIsNil = errors.New("value is nill")

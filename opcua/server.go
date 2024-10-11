@@ -3,12 +3,14 @@ package opcua
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/shoothzj/gox/buffer"
 	"log/slog"
 	"net"
-	"opcua-go/opcua/ua"
 	"sync"
 	"time"
+
+	"github.com/shoothzj/gox/buffer"
+
+	"github.com/protocol-laboratory/opcua-go/opcua/ua"
 )
 
 type ServerConfig struct {

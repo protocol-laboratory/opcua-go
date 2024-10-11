@@ -1,4 +1,4 @@
-module opcua-go
+module github.com/protocol-laboratory/opcua-go
 
 go 1.21
 
