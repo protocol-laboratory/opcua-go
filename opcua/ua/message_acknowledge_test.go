@@ -1,10 +1,11 @@
 package ua
 
 import (
+	"testing"
+
 	"github.com/shoothzj/gox/testx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestDecodeMessageAcknowledge(t *testing.T) {

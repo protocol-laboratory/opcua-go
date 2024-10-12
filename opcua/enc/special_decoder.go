@@ -3,8 +3,9 @@ package enc
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/protocol-laboratory/opcua-go/opcua/uamsg"
 	"reflect"
+
+	"github.com/protocol-laboratory/opcua-go/opcua/uamsg"
 )
 
 func StringDecoder(r *superReader, v reflect.Value) error {
