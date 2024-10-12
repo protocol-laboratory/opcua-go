@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/shoothzj/gox/buffer"
+	"github.com/libgox/buffer"
 
 	"github.com/protocol-laboratory/opcua-go/opcua/ua"
 )

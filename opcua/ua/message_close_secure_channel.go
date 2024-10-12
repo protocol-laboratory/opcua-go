@@ -1,7 +1,7 @@
 package ua
 
 import (
-	"github.com/shoothzj/gox/buffer"
+	"github.com/libgox/buffer"
 )
 
 type MessageCloseSecureChannel struct {
@@ -29,7 +29,7 @@ func (m *MessageCloseSecureChannel) Buffer() (*buffer.Buffer, error) {
 	if _, err := buf.Write([]byte{'F'}); err != nil {
 		return nil, err
 	}
-	if err := buf.PutUInt32Le(uint32(m.Length())); err != nil {
+	if err := buf.WriteUInt32Le(uint32(m.Length())); err != nil {
 		return nil, err
 	}
 	return buf, nil

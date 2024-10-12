@@ -3,7 +3,7 @@ module github.com/protocol-laboratory/opcua-go
 go 1.21
 
 require (
-	github.com/shoothzj/gox v0.0.4-0.20240916105254-02a0a7039d5d
+	github.com/libgox/buffer v0.0.0-20241010235618-d8b51aafaff0
 	github.com/stretchr/testify v1.9.0
 )
 

@@ -9,14 +9,13 @@ import (
 	"net"
 	"sync"
 
-	"github.com/shoothzj/gox/buffer"
-	"github.com/shoothzj/gox/netx"
+	"github.com/libgox/buffer"
 
 	"github.com/protocol-laboratory/opcua-go/opcua/ua"
 )
 
 type ClientConfig struct {
-	Address          netx.Address
+	Address          Address
 	BufferMax        int
 	SendQueueSize    int
 	PendingQueueSize int
@@ -169,7 +168,13 @@ func (c *Client) Close() {
 }
 
 func NewClient(config *ClientConfig) (*Client, error) {
-	conn, err := netx.Dial(config.Address, config.TlsConfig)
+	var conn net.Conn
+	var err error
+	if config.TlsConfig != nil {
+		conn, err = tls.Dial("tcp", config.Address.Addr(), config.TlsConfig)
+	} else {
+		conn, err = net.Dial("tcp", config.Address.Addr())
+	}
 
 	if err != nil {
 		return nil, err

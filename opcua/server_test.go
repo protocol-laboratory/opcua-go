@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/protocol-laboratory/opcua-go/opcua/ua"
-	"github.com/shoothzj/gox/netx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -27,7 +26,7 @@ func newTestSimpleClientServer(t *testing.T, serverConfig *ServerConfig, clientC
 	require.NoError(t, err, "Server should start without error")
 
 	clientConfig.Logger = testLogger
-	clientConfig.Address = netx.Address{
+	clientConfig.Address = Address{
 		Host: serverConfig.Host,
 		Port: port,
 	}
