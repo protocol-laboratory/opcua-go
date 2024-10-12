@@ -8,14 +8,13 @@ import (
 
 	"github.com/protocol-laboratory/opcua-go/opcua"
 	"github.com/protocol-laboratory/opcua-go/opcua/ua"
-	"github.com/shoothzj/gox/netx"
 )
 
 func main() {
 	logger := slog.Default()
 
 	config := &opcua.ClientConfig{
-		Address: netx.Address{
+		Address: opcua.Address{
 			Host: "localhost",
 			Port: 4840,
 		},

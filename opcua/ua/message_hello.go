@@ -1,7 +1,7 @@
 package ua
 
 import (
-	"github.com/shoothzj/gox/buffer"
+	"github.com/libgox/buffer"
 )
 
 type MessageHello struct {
@@ -35,7 +35,7 @@ func DecodeMessageHello(buf *buffer.Buffer) (msg *MessageHello, err error) {
 	if err != nil {
 		return nil, err
 	}
-	msg.EndpointUrl, err = buf.ReadStringLe()
+	msg.EndpointUrl, err = buf.ReadLengthPrefixedStringLe()
 	if err != nil {
 		return nil, err
 	}
@@ -65,25 +65,25 @@ func (m *MessageHello) Buffer() (*buffer.Buffer, error) {
 	if _, err := buf.Write([]byte{'F'}); err != nil {
 		return nil, err
 	}
-	if err := buf.PutUInt32Le(uint32(m.Length())); err != nil {
+	if err := buf.WriteUInt32Le(uint32(m.Length())); err != nil {
 		return nil, err
 	}
-	if err := buf.PutUInt32Le(m.Version); err != nil {
+	if err := buf.WriteUInt32Le(m.Version); err != nil {
 		return nil, err
 	}
-	if err := buf.PutUInt32Le(m.ReceiveBufferSize); err != nil {
+	if err := buf.WriteUInt32Le(m.ReceiveBufferSize); err != nil {
 		return nil, err
 	}
-	if err := buf.PutUInt32Le(m.SendBufferSize); err != nil {
+	if err := buf.WriteUInt32Le(m.SendBufferSize); err != nil {
 		return nil, err
 	}
-	if err := buf.PutUInt32Le(m.MaxMessageSize); err != nil {
+	if err := buf.WriteUInt32Le(m.MaxMessageSize); err != nil {
 		return nil, err
 	}
-	if err := buf.PutUInt32Le(m.MaxChunkCount); err != nil {
+	if err := buf.WriteUInt32Le(m.MaxChunkCount); err != nil {
 		return nil, err
 	}
-	if err := buf.PutStringLe(m.EndpointUrl); err != nil {
+	if err := buf.WriteLengthPrefixedStringLe(m.EndpointUrl); err != nil {
 		return nil, err
 	}
 	return buf, nil

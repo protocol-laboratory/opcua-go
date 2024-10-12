@@ -1,7 +1,7 @@
 package ua
 
 import (
-	"github.com/shoothzj/gox/buffer"
+	"github.com/libgox/buffer"
 )
 
 type MessageReadReq struct {

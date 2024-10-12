@@ -3,13 +3,12 @@ package ua
 import (
 	"testing"
 
-	"github.com/shoothzj/gox/testx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestDecodeMessageAcknowledge(t *testing.T) {
-	buffer := testx.Hex2Buffer(t, "41434b461c00000000000000ffff0000ffff00000000200040000000")
+	buffer := hex2Buffer(t, "41434b461c00000000000000ffff0000ffff00000000200040000000")
 	err := buffer.Skip(8)
 	require.Nil(t, err)
 	msg, err := DecodeMessageAcknowledge(buffer)
@@ -32,5 +31,5 @@ func TestEncodeMessageAcknowledge(t *testing.T) {
 	}
 	buffer, err := msg.Buffer()
 	require.Nil(t, err)
-	assert.Equal(t, testx.Hex2Buffer(t, "41434b461c00000000000000ffff0000ffff00000000200040000000"), buffer)
+	assert.Equal(t, hex2Buffer(t, "41434b461c00000000000000ffff0000ffff00000000200040000000"), buffer)
 }
