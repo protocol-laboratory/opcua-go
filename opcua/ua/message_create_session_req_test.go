@@ -1,9 +1,10 @@
 package ua
 
 import (
+	"testing"
+
 	"github.com/shoothzj/gox/testx"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestDecodeMessageCreateSessionReq(t *testing.T) {

@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/protocol-laboratory/opcua-go/opcua"
 	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/protocol-laboratory/opcua-go/opcua"
 )
 
 func main() {

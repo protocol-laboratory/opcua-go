@@ -1,12 +1,13 @@
 package opcua
 
 import (
+	"log/slog"
+	"testing"
+
 	"github.com/protocol-laboratory/opcua-go/opcua/ua"
 	"github.com/shoothzj/gox/netx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"log/slog"
-	"testing"
 )
 
 type testSimpleClientServer struct {
