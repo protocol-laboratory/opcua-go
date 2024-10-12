@@ -5,12 +5,11 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"github.com/protocol-laboratory/opcua-go/opcua/uamsg"
+	"github.com/protocol-laboratory/opcua-go/opcua/util"
 	"io"
 	"math"
 	"reflect"
-
-	"opcua-go/opcua/uamsg"
-	"opcua-go/opcua/util"
 )
 
 type Decoder interface {

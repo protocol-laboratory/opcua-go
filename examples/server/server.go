@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/protocol-laboratory/opcua-go/opcua"
 	"log/slog"
-	"opcua-go/opcua"
 	"os"
 	"os/signal"
 	"syscall"
