@@ -10,7 +10,7 @@ import (
 	"github.com/protocol-laboratory/opcua-go/opcua/uamsg"
 )
 
-var ErrValueIsNil = errors.New("value is nill")
+var ErrValueIsNil = errors.New("value is nil")
 
 type Encoder interface {
 	Encode(v *uamsg.Message, chunkSize int) ([][]byte, error)
