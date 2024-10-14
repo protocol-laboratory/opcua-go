@@ -1,3 +1,5 @@
 [default.extend-words]
 # keyword fp
 "hel" = "hel"
+# keep for comptability
+"Sempahore" = "Sempahore"
