@@ -165,7 +165,7 @@ func (d *bufferedDecoder) fillMessageBody(msg *uamsg.Message) error {
 		}
 		serviceType, ok := messageBody.TypeId.Identifier.(uint16)
 		if !ok {
-			return errors.New("know type service")
+			return errors.New("unknown type service")
 		}
 
 		switch uamsg.ServiceTypeEnum(serviceType) {
@@ -198,7 +198,7 @@ func (d *bufferedDecoder) fillMessageBody(msg *uamsg.Message) error {
 			}
 			messageBody.Service = service
 		default:
-			return errors.New("know type service")
+			return errors.New("unknown type service")
 		}
 		msg.MessageBody = messageBody
 	default:

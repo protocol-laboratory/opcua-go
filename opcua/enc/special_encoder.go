@@ -11,11 +11,11 @@ import (
 )
 
 func StringEncoder(v interface{}) ([]byte, error) {
-	buff := bytes.NewBuffer(nil)
 	value, ok := v.(string)
 	if !ok {
 		return nil, fmt.Errorf("error type of string, %v", reflect.TypeOf(v).Name())
 	}
+	buff := bytes.NewBuffer(nil)
 	length := int32(len(value))
 	if length == 0 {
 		length = -1
@@ -29,11 +29,11 @@ func StringEncoder(v interface{}) ([]byte, error) {
 }
 
 func ByteStringEncoder(v interface{}) ([]byte, error) {
-	buff := bytes.NewBuffer(nil)
 	value, ok := v.([]byte)
 	if !ok {
 		return nil, fmt.Errorf("error type of bytestring, %v", reflect.TypeOf(v).Name())
 	}
+	buff := bytes.NewBuffer(nil)
 	// ByteString's empty and null encodings are inconsistent
 	length := int32(len(value))
 	if length == 0 && value == nil {
@@ -48,7 +48,6 @@ func ByteStringEncoder(v interface{}) ([]byte, error) {
 }
 
 func GuidEncoder(v interface{}) ([]byte, error) {
-	buff := bytes.NewBuffer(nil)
 	var guid uamsg.Guid
 	temp, ok := v.(*uamsg.Guid)
 	if !ok {
@@ -59,6 +58,7 @@ func GuidEncoder(v interface{}) ([]byte, error) {
 		temp = &guid
 	}
 	guid = *temp
+	buff := bytes.NewBuffer(nil)
 	err := binary.Write(buff, binary.LittleEndian, guid.Data1)
 	if err != nil {
 		return nil, err
@@ -79,7 +79,6 @@ func GuidEncoder(v interface{}) ([]byte, error) {
 }
 
 func QualifiedNameEncoder(v interface{}) ([]byte, error) {
-	buff := bytes.NewBuffer(nil)
 	var qualifiedName uamsg.QualifiedName
 	temp, ok := v.(*uamsg.QualifiedName)
 	if !ok {
@@ -90,6 +89,7 @@ func QualifiedNameEncoder(v interface{}) ([]byte, error) {
 		temp = &qualifiedName
 	}
 	qualifiedName = *temp
+	buff := bytes.NewBuffer(nil)
 	err := binary.Write(buff, binary.LittleEndian, qualifiedName.NamespaceIndex)
 	if err != nil {
 		return nil, err

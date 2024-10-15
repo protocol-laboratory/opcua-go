@@ -1,5 +1,12 @@
 package uamsg
 
+const (
+	MessageSecurityModeInvalid        MessageSecurityModeEnum = 0
+	MessageSecurityModeNone           MessageSecurityModeEnum = 1
+	MessageSecurityModeSign           MessageSecurityModeEnum = 2
+	MessageSecurityModeSignAndEncrypt MessageSecurityModeEnum = 3
+)
+
 type (
 	SecurityTokenRequestType uint32
 	MessageSecurityModeEnum  uint32
