@@ -3,3 +3,8 @@
 "hel" = "hel"
 # keep for comptability
 "Sempahore" = "Sempahore"
+
+[files]
+extend-exclude = [
+    "opcua/uamsg/std_nodeids.go",
+]
