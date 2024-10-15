@@ -223,3 +223,7 @@ func genericEncoder(v interface{}) ([]byte, error) {
 
 	return buff.Bytes(), nil
 }
+
+func (e *DefaultEncoder) SetSequenceNumberGenerator(f func() uint32) {
+	e.sequenceNumberGenerator = f
+}

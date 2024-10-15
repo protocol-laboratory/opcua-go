@@ -45,9 +45,6 @@ func TestDefaultEncoder_Encode(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(got, tt.want) {
-				//for _, chunk := range got {
-				//	showByteSlice(chunk)
-				//}
 				showByteSlice(got[0])
 				t.Errorf("DefaultEncoder.Encode() = %v, want %v", got, tt.want)
 			}
@@ -145,11 +142,7 @@ func getOpenSecureChannelRequestMsgTestCase() *encodeTestCase {
 				},
 				MessageBody: &uamsg.GenericBody{
 					TypeId: &uamsg.ExpandedNodeId{
-						NodeId: &uamsg.NodeId{
-							EncodingType: uamsg.FourByte,
-							Namespace:    0,
-							Identifier:   uint16(446),
-						},
+						NodeId: &uamsg.ObjectOpenSecureChannelRequest_Encoding_DefaultBinary,
 					},
 					Service: &uamsg.OpenSecureChannelServiceRequest{
 						Header: &uamsg.RequestHeader{
@@ -208,11 +201,7 @@ func getOpenSecureChannelResponseMsgTestCase() *encodeTestCase {
 				},
 				MessageBody: &uamsg.GenericBody{
 					TypeId: &uamsg.ExpandedNodeId{
-						NodeId: &uamsg.NodeId{
-							EncodingType: uamsg.FourByte,
-							Namespace:    0,
-							Identifier:   uint16(449),
-						},
+						NodeId: &uamsg.ObjectOpenSecureChannelResponse_Encoding_DefaultBinary,
 					},
 					Service: &uamsg.OpenSecureChannelServiceResponse{
 						Header: &uamsg.ResponseHeader{
@@ -270,11 +259,7 @@ func getCreateSessionRequestMsgTestCase() *encodeTestCase {
 				},
 				MessageBody: &uamsg.GenericBody{
 					TypeId: &uamsg.ExpandedNodeId{
-						NodeId: &uamsg.NodeId{
-							EncodingType: uamsg.FourByte,
-							Namespace:    0,
-							Identifier:   uint16(461),
-						},
+						NodeId: &uamsg.ObjectCreateSessionRequest_Encoding_DefaultBinary,
 					},
 					Service: &uamsg.CreateSessionRequest{
 						Header: &uamsg.RequestHeader{
@@ -345,11 +330,7 @@ func getActiveSessionRequestMsgTestCase() *encodeTestCase {
 				},
 				MessageBody: &uamsg.GenericBody{
 					TypeId: &uamsg.ExpandedNodeId{
-						NodeId: &uamsg.NodeId{
-							EncodingType: uamsg.FourByte,
-							Namespace:    0,
-							Identifier:   uint16(467),
-						},
+						NodeId: &uamsg.ObjectActivateSessionRequest_Encoding_DefaultBinary,
 					},
 					Service: &uamsg.ActivateSessionRequest{
 						Header: &uamsg.RequestHeader{
@@ -421,11 +402,7 @@ func getActiveSessionResponseMsgTestCase() *encodeTestCase {
 				},
 				MessageBody: &uamsg.GenericBody{
 					TypeId: &uamsg.ExpandedNodeId{
-						NodeId: &uamsg.NodeId{
-							EncodingType: uamsg.FourByte,
-							Namespace:    0,
-							Identifier:   uint16(470),
-						},
+						NodeId: &uamsg.ObjectActivateSessionResponse_Encoding_DefaultBinary,
 					},
 					Service: &uamsg.ActivateSessionResponse{
 						Header: &uamsg.ResponseHeader{

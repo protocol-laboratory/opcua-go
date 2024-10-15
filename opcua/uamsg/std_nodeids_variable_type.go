@@ -1,0 +1,67 @@
+package uamsg
+
+// https://github.com/OPCFoundation/UA-Nodeset/blob/latest/Schema/NodeIds.csv
+var (
+	VariableTypeBaseVariableType                          NodeId = NodeId{TwoByte, 0, uint16(62)}
+	VariableTypeBaseDataVariableType                      NodeId = NodeId{TwoByte, 0, uint16(63)}
+	VariableTypePropertyType                              NodeId = NodeId{TwoByte, 0, uint16(68)}
+	VariableTypeDataTypeDescriptionType                   NodeId = NodeId{TwoByte, 0, uint16(69)}
+	VariableTypeDataTypeDictionaryType                    NodeId = NodeId{TwoByte, 0, uint16(72)}
+	VariableTypeServerVendorCapabilityType                NodeId = NodeId{FourByte, 0, uint16(2137)}
+	VariableTypeServerStatusType                          NodeId = NodeId{FourByte, 0, uint16(2138)}
+	VariableTypeServerDiagnosticsSummaryType              NodeId = NodeId{FourByte, 0, uint16(2150)}
+	VariableTypeSamplingIntervalDiagnosticsArrayType      NodeId = NodeId{FourByte, 0, uint16(2164)}
+	VariableTypeSamplingIntervalDiagnosticsType           NodeId = NodeId{FourByte, 0, uint16(2165)}
+	VariableTypeSubscriptionDiagnosticsArrayType          NodeId = NodeId{FourByte, 0, uint16(2171)}
+	VariableTypeSubscriptionDiagnosticsType               NodeId = NodeId{FourByte, 0, uint16(2172)}
+	VariableTypeSessionDiagnosticsArrayType               NodeId = NodeId{FourByte, 0, uint16(2196)}
+	VariableTypeSessionDiagnosticsVariableType            NodeId = NodeId{FourByte, 0, uint16(2197)}
+	VariableTypeSessionSecurityDiagnosticsArrayType       NodeId = NodeId{FourByte, 0, uint16(2243)}
+	VariableTypeSessionSecurityDiagnosticsType            NodeId = NodeId{FourByte, 0, uint16(2244)}
+	VariableTypeDataItemType                              NodeId = NodeId{FourByte, 0, uint16(2365)}
+	VariableTypeAnalogItemType                            NodeId = NodeId{FourByte, 0, uint16(2368)}
+	VariableTypeDiscreteItemType                          NodeId = NodeId{FourByte, 0, uint16(2372)}
+	VariableTypeTwoStateDiscreteType                      NodeId = NodeId{FourByte, 0, uint16(2373)}
+	VariableTypeMultiStateDiscreteType                    NodeId = NodeId{FourByte, 0, uint16(2376)}
+	VariableTypeProgramDiagnosticType                     NodeId = NodeId{FourByte, 0, uint16(2380)}
+	VariableTypeStateVariableType                         NodeId = NodeId{FourByte, 0, uint16(2755)}
+	VariableTypeFiniteStateVariableType                   NodeId = NodeId{FourByte, 0, uint16(2760)}
+	VariableTypeTransitionVariableType                    NodeId = NodeId{FourByte, 0, uint16(2762)}
+	VariableTypeFiniteTransitionVariableType              NodeId = NodeId{FourByte, 0, uint16(2767)}
+	VariableTypeBuildInfoType                             NodeId = NodeId{FourByte, 0, uint16(3051)}
+	VariableTypeTwoStateVariableType                      NodeId = NodeId{FourByte, 0, uint16(8995)}
+	VariableTypeConditionVariableType                     NodeId = NodeId{FourByte, 0, uint16(9002)}
+	VariableTypeMultiStateValueDiscreteType               NodeId = NodeId{FourByte, 0, uint16(11238)}
+	VariableTypeOptionSetType                             NodeId = NodeId{FourByte, 0, uint16(11487)}
+	VariableTypeArrayItemType                             NodeId = NodeId{FourByte, 0, uint16(12021)}
+	VariableTypeYArrayItemType                            NodeId = NodeId{FourByte, 0, uint16(12029)}
+	VariableTypeXYArrayItemType                           NodeId = NodeId{FourByte, 0, uint16(12038)}
+	VariableTypeImageItemType                             NodeId = NodeId{FourByte, 0, uint16(12047)}
+	VariableTypeCubeItemType                              NodeId = NodeId{FourByte, 0, uint16(12057)}
+	VariableTypeNDimensionArrayItemType                   NodeId = NodeId{FourByte, 0, uint16(12068)}
+	VariableTypeGuardVariableType                         NodeId = NodeId{FourByte, 0, uint16(15113)}
+	VariableTypeExpressionGuardVariableType               NodeId = NodeId{FourByte, 0, uint16(15128)}
+	VariableTypeElseGuardVariableType                     NodeId = NodeId{FourByte, 0, uint16(15317)}
+	VariableTypeBaseAnalogType                            NodeId = NodeId{FourByte, 0, uint16(15318)}
+	VariableTypeProgramDiagnostic2Type                    NodeId = NodeId{FourByte, 0, uint16(15383)}
+	VariableTypeSelectionListType                         NodeId = NodeId{FourByte, 0, uint16(16309)}
+	VariableTypeAlarmRateVariableType                     NodeId = NodeId{FourByte, 0, uint16(17277)}
+	VariableTypeAnalogUnitType                            NodeId = NodeId{FourByte, 0, uint16(17497)}
+	VariableTypeAnalogUnitRangeType                       NodeId = NodeId{FourByte, 0, uint16(17570)}
+	VariableTypeRationalNumberType                        NodeId = NodeId{FourByte, 0, uint16(17709)}
+	VariableTypeVectorType                                NodeId = NodeId{FourByte, 0, uint16(17714)}
+	VariableTypeThreeDVectorType                          NodeId = NodeId{FourByte, 0, uint16(17716)}
+	VariableTypeAudioVariableType                         NodeId = NodeId{FourByte, 0, uint16(17986)}
+	VariableTypeCartesianCoordinatesType                  NodeId = NodeId{FourByte, 0, uint16(18772)}
+	VariableTypeThreeDCartesianCoordinatesType            NodeId = NodeId{FourByte, 0, uint16(18774)}
+	VariableTypeOrientationType                           NodeId = NodeId{FourByte, 0, uint16(18779)}
+	VariableTypeThreeDOrientationType                     NodeId = NodeId{FourByte, 0, uint16(18781)}
+	VariableTypeFrameType                                 NodeId = NodeId{FourByte, 0, uint16(18786)}
+	VariableTypeThreeDFrameType                           NodeId = NodeId{FourByte, 0, uint16(18791)}
+	VariableTypeMultiStateDictionaryEntryDiscreteBaseType NodeId = NodeId{FourByte, 0, uint16(19077)}
+	VariableTypeMultiStateDictionaryEntryDiscreteType     NodeId = NodeId{FourByte, 0, uint16(19084)}
+	VariableTypePubSubDiagnosticsCounterType              NodeId = NodeId{FourByte, 0, uint16(19725)}
+	VariableTypeAlarmStateVariableType                    NodeId = NodeId{FourByte, 0, uint16(32244)}
+	VariableTypeBitFieldType                              NodeId = NodeId{FourByte, 0, uint16(32431)}
+	VariableTypeReferenceDescriptionVariableType          NodeId = NodeId{FourByte, 0, uint16(32657)}
+)
