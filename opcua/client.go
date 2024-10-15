@@ -9,13 +9,14 @@ import (
 	"net"
 	"sync"
 
+	"github.com/libgox/addr"
 	"github.com/libgox/buffer"
 
 	"github.com/protocol-laboratory/opcua-go/opcua/ua"
 )
 
 type ClientConfig struct {
-	Address          Address
+	Address          addr.Address
 	BufferMax        int
 	SendQueueSize    int
 	PendingQueueSize int
