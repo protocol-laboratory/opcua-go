@@ -54,6 +54,10 @@ type SequenceHeader struct {
 	RequestId      uint32
 }
 
+type ServiceFault struct {
+	Header *ResponseHeader
+}
+
 // ErrorMessageExtras Any server-side error responses are returned in this form
 type ErrorMessageExtras struct {
 	Error  uint32

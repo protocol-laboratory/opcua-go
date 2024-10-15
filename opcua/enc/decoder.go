@@ -163,34 +163,31 @@ func (d *bufferedDecoder) fillMessageBody(msg *uamsg.Message) error {
 		if err != nil {
 			return err
 		}
-		serviceType, ok := messageBody.TypeId.Identifier.(uint16)
-		if !ok {
-			return errors.New("unknown type service")
-		}
 
-		switch uamsg.ServiceTypeEnum(serviceType) {
-		case uamsg.OpenSecureChannelServiceRequestType:
+		// TODO process more Identifier type
+		switch messageBody.TypeId.Identifier {
+		case uamsg.ObjectOpenSecureChannelRequest_Encoding_DefaultBinary.Identifier:
 			service := &uamsg.OpenSecureChannelServiceRequest{}
 			err = d.readTo(reflect.ValueOf(service).Elem())
 			if err != nil {
 				return err
 			}
 			messageBody.Service = service
-		case uamsg.OpenSecureChannelServiceResponseType:
+		case uamsg.ObjectOpenSecureChannelResponse_Encoding_DefaultBinary.Identifier:
 			service := &uamsg.OpenSecureChannelServiceResponse{}
 			err = d.readTo(reflect.ValueOf(service).Elem())
 			if err != nil {
 				return err
 			}
 			messageBody.Service = service
-		case uamsg.CreateSessionRequestType:
+		case uamsg.ObjectCreateSessionRequest_Encoding_DefaultBinary.Identifier:
 			service := &uamsg.CreateSessionRequest{}
 			err = d.readTo(reflect.ValueOf(service).Elem())
 			if err != nil {
 				return err
 			}
 			messageBody.Service = service
-		case uamsg.CreateSessionResponseType:
+		case uamsg.ObjectCreateSessionResponse_Encoding_DefaultBinary:
 			service := &uamsg.CreateSessionResponse{}
 			err = d.readTo(reflect.ValueOf(service).Elem())
 			if err != nil {
