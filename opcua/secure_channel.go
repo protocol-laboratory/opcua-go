@@ -43,7 +43,7 @@ func (secChan *SecureChannel) open() error {
 	secChan.logger.Info("handling hello message")
 	err := secChan.handleHello()
 	if err != nil {
-		return nil
+		return err
 	}
 
 	secChan.logger.Info("handling open secure channel message")
