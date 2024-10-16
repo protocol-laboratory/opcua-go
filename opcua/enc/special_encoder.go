@@ -129,7 +129,7 @@ func NodeIdEncoder(v interface{}) ([]byte, error) {
 		return nil, err
 	}
 
-	// node id 使用低4位
+	// node id use low four bytes
 	switch value.EncodingType & 0x0f {
 	case uamsg.TwoByte:
 		identifier, ok := value.Identifier.(byte)

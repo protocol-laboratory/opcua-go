@@ -36,7 +36,7 @@ type MessageHeader struct {
 	MessageType     MessageTypeEnum
 	ChunkType       ChunkTypeEnum
 	MessageSize     uint32
-	SecureChannelId *uint32 `enc:"omitempty"` // handshake阶段，secure channel未建立，无需编码该字段
+	SecureChannelId *uint32 `enc:"omitempty"` // during handshake, this field is omitted
 }
 
 type AsymmetricSecurityHeader struct {

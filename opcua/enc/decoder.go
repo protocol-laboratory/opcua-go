@@ -207,7 +207,7 @@ func (d *bufferedDecoder) fillMessageBody(msg *uamsg.Message) error {
 func (d *bufferedDecoder) readTo(value reflect.Value) error {
 	valueType := value.Type()
 	switch value.Kind() {
-	// 根据字段类型设置新的值
+	// set new value by value kind
 	case reflect.Uint8:
 		dataByte, err := d.r.readByte()
 		if err != nil {
@@ -350,7 +350,7 @@ func (s *superReader) readN(n int32) ([]byte, error) {
 	if n < 0 {
 		return nil, errors.New("byte`num can`t be less than 0")
 	}
-	// todo 优化byte切片的获取
+	// todo optimize byte slice read
 	p := make([]byte, n)
 	readNum, err := s.r.Read(p)
 	if err != nil {
@@ -390,7 +390,7 @@ func (s *superReader) readNFromBuffer(n int32) ([]byte, error) {
 	if n < 0 {
 		return nil, errors.New("byte`num can`t be less than 0")
 	}
-	// todo 优化byte切片的获取
+	// todo optimize byte slice read
 	p := make([]byte, n)
 	readNum, err := s.buff.Read(p)
 	if err != nil {
