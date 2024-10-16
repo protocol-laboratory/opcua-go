@@ -195,7 +195,7 @@ func genericEncoder(v interface{}) ([]byte, error) {
 					if !errors.Is(err, ErrValueIsNil) {
 						return nil, err
 					}
-					// enc: omitempty标记的值解不出来可以不加入编码，不算错误
+					// enc: The value with the `omitempty` tag can be omitted from encoding if it cannot be resolved, and this is not considered an error.
 					tagValue, ok := value.Type().Field(i).Tag.Lookup("enc")
 					if !ok {
 						return nil, err

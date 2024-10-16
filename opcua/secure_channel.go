@@ -92,7 +92,7 @@ func (secChan *SecureChannel) handleHello() error {
 	secChan.maxResponseMessageSize = helloBody.MaxMessageSize
 	secChan.endpointUrl = helloBody.EndpointUrl
 
-	err = secChan.handler.ValidateHello(secChan.conn, helloBody)
+	err = secChan.handler.BeforeHello(secChan.conn, helloBody)
 	if err != nil {
 		return err
 	}
