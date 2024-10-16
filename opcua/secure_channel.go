@@ -144,9 +144,9 @@ func (secChan *SecureChannel) handleOpenSecureChannel() error {
 		return errors.New("invalid message body, expected GenericBody")
 	}
 
-	openSecChanBody, ok := genericBody.Service.(*uamsg.OpenSecureChannelServiceRequest)
+	openSecChanBody, ok := genericBody.Service.(*uamsg.OpenSecureChannelRequest)
 	if !ok {
-		return errors.New("invalid service, expected OpenSecureChannelServiceRequest")
+		return errors.New("invalid service, expected OpenSecureChannelRequest")
 	}
 
 	// TODO only support NONE mode yet
@@ -176,7 +176,7 @@ func (secChan *SecureChannel) handleOpenSecureChannel() error {
 			TypeId: &uamsg.ExpandedNodeId{
 				NodeId: &uamsg.ObjectOpenSecureChannelResponse_Encoding_DefaultBinary,
 			},
-			Service: &uamsg.OpenSecureChannelServiceResponse{
+			Service: &uamsg.OpenSecureChannelResponse{
 				Header: &uamsg.ResponseHeader{
 					Timestamp:     util.GetCurrentUaTimestamp(),
 					RequestHandle: openSecChanBody.Header.RequestHandle,
@@ -231,18 +231,22 @@ func (secChan *SecureChannel) handleRequest(req *uamsg.Message) error {
 	var rsp *uamsg.Message
 	var err error
 	switch generic.Service.(type) {
-	case *uamsg.OpenSecureChannelServiceRequest:
-		rsp, err = secChan.handleOpenSecureChannelServiceRequest(req)
+	case *uamsg.OpenSecureChannelRequest:
+		rsp, err = secChan.handleOpenSecureChannelRequest(req)
 	case *uamsg.CloseSecureChannelRequest:
 		rsp, err = secChan.handleCloseSecureChannelRequest(req)
-	case *uamsg.ReadRequest:
-		rsp, err = secChan.handleReadRequest(req)
 	case *uamsg.CreateSessionRequest:
 		rsp, err = secChan.handleCreateSessionRequest(req)
 	case *uamsg.ActivateSessionRequest:
 		rsp, err = secChan.handleActivateSessionRequest(req)
 	case *uamsg.CloseSessionRequest:
 		rsp, err = secChan.handleCloseSessionRequest(req)
+	case *uamsg.GetEndpointsRequest:
+		rsp, err = secChan.handleGetEndpoints(req)
+	case *uamsg.BrowseRequest:
+		rsp, err = secChan.handleBrowseRequest(req)
+	case *uamsg.ReadRequest:
+		rsp, err = secChan.handleReadRequest(req)
 	default:
 		secChan.logger.Error("unsupported an service", "service", generic.Service)
 		rsp = secChan.createErrorMessage(req.RequestId, 0, uamsg.ErrorCodeBadServiceUnsupported)
