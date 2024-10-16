@@ -2,6 +2,7 @@ package opcua
 
 import (
 	"errors"
+	"net"
 	"sync/atomic"
 
 	"golang.org/x/exp/slog"
@@ -12,7 +13,7 @@ import (
 )
 
 type SecureChannel struct {
-	conn         *opcuaConn
+	conn         net.Conn
 	channelId    uint32
 	channelIdGen *ChannelIdGen
 	logger       *slog.Logger
@@ -36,13 +37,13 @@ const (
 	ProtocolVersion uint32 = 0
 )
 
-func newSecureChannel(conn *opcuaConn, svcConf *ServerConfig, channelId uint32, channelIdGen *ChannelIdGen, logger *slog.Logger) *SecureChannel {
+func newSecureChannel(conn net.Conn, svcConf *ServerConfig, channelId uint32, channelIdGen *ChannelIdGen, logger *slog.Logger) *SecureChannel {
 	return &SecureChannel{
 		conn:         conn,
 		channelId:    channelId,
 		channelIdGen: channelIdGen,
 		logger:       logger,
-		decoder:      enc.NewDefaultDecoder(conn.conn, int64(svcConf.ReceiverBufferSize)),
+		decoder:      enc.NewDefaultDecoder(conn, int64(svcConf.ReceiverBufferSize)),
 		encoder:      enc.NewDefaultEncoder(),
 	}
 }
@@ -104,7 +105,7 @@ func (secChan *SecureChannel) handleHello() error {
 	}
 
 	for _, content := range bytes {
-		length, err := secChan.conn.conn.Write(content)
+		length, err := secChan.conn.Write(content)
 		if err != nil {
 			return err
 		}
@@ -249,7 +250,7 @@ func (secChan *SecureChannel) sendResponse(rsp *uamsg.Message) error {
 	}
 
 	for _, content := range bytes {
-		length, err := secChan.conn.conn.Write(content)
+		length, err := secChan.conn.Write(content)
 		if err != nil {
 			return err
 		}
