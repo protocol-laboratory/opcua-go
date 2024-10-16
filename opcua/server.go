@@ -51,8 +51,10 @@ func NewServer(config *ServerConfig) (*Server, error) {
 		config:       config,
 		quit:         make(chan bool),
 		channelIdGen: &ChannelIdGen{},
-		handler:      config.handler,
 		logger:       config.Logger,
+	}
+	if config.handler == nil {
+		server.handler = &DefaultServerHandler{}
 	}
 	server.logger.Info("server initialized", slog.String("host", config.Host), slog.Int("port", config.Port))
 	return server, nil
@@ -100,34 +102,30 @@ func (s *Server) listenLoop() {
 			}
 		}
 		go func() {
-			s.handleConn(netConn)
+			s.handleConn(&Conn{
+				Conn: netConn,
+			})
 		}()
 	}
 }
 
-func (s *Server) handleConn(conn net.Conn) {
-	if s.handler != nil {
-		s.handler.ConnectionOpened(conn)
-	}
+func (s *Server) handleConn(conn *Conn) {
+	s.handler.ConnectionOpened(conn)
 	channelId := s.channelIdGen.next()
 	channelLogger := s.logger.With(LogRemoteAddr, conn.RemoteAddr().String()).With(LogChannelId, channelId)
 	channelLogger.Info("starting SecureChannel initialization")
-	secChannel := newSecureChannel(conn, s.config, channelId, s.channelIdGen, channelLogger)
+	secChannel := newSecureChannel(conn, s.config, channelId, s.channelIdGen, s.handler, channelLogger)
 	err := secChannel.open()
 	if err != nil {
 		_ = conn.Close()
-		if s.handler != nil {
-			s.handler.ConnectionClosed(conn)
-		}
+		s.handler.ConnectionClosed(conn)
 		channelLogger.Error("failed to open SecureChannel", slog.Any("err", err.Error()))
 		return
 	}
 	err = secChannel.serve()
 	if err != nil {
 		_ = conn.Close()
-		if s.handler != nil {
-			s.handler.ConnectionClosed(conn)
-		}
+		s.handler.ConnectionClosed(conn)
 		secChannel.logger.Error("processing request error", slog.Any("err", err))
 	}
 }
