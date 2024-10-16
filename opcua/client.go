@@ -5,9 +5,10 @@ import (
 	"crypto/tls"
 	"encoding/binary"
 	"fmt"
-	"log/slog"
 	"net"
 	"sync"
+
+	"golang.org/x/exp/slog"
 
 	"github.com/libgox/addr"
 	"github.com/libgox/buffer"

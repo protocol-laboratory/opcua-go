@@ -4,7 +4,7 @@
 
 ## Requirements
 
-- Go 1.21+
+- Go 1.20+
 
 ## 🚀 Install
 
