@@ -13,7 +13,7 @@ type ServerConfig struct {
 	Host string
 	Port int
 
-	handler ServerHandler
+	Handler ServerHandler
 
 	ReceiverBufferSize int
 
@@ -53,7 +53,7 @@ func NewServer(config *ServerConfig) (*Server, error) {
 		channelIdGen: &ChannelIdGen{},
 		logger:       config.Logger,
 	}
-	if config.handler == nil {
+	if config.Handler == nil {
 		server.handler = &DefaultServerHandler{}
 	}
 	server.logger.Info("server initialized", slog.String("host", config.Host), slog.Int("port", config.Port))
