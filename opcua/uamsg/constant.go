@@ -49,12 +49,3 @@ const (
 	InnerStatusCodeFlag     DiagnosticInfoMaskEnum = 0x20
 	InnerDiagnosticInfoFlag DiagnosticInfoMaskEnum = 0x40
 )
-
-type ServiceTypeEnum uint16
-
-const (
-	OpenSecureChannelServiceRequestType  ServiceTypeEnum = 446
-	OpenSecureChannelServiceResponseType ServiceTypeEnum = 449
-	CreateSessionRequestType             ServiceTypeEnum = 461
-	CreateSessionResponseType            ServiceTypeEnum = 464
-)
