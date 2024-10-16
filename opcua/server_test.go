@@ -97,5 +97,5 @@ func TestClientMessageHello(t *testing.T) {
 	assert.Equal(t, uint32(65535), messageAcknowledge.ReceiveBufferSize)
 	assert.Equal(t, uint32(65535), messageAcknowledge.SendBufferSize)
 	assert.Equal(t, uint32(2097152), messageAcknowledge.MaxMessageSize)
-	assert.Equal(t, uint32(64), messageAcknowledge.MaxChunkCount)
+	assert.Equal(t, uint32(0), messageAcknowledge.MaxChunkCount)
 }

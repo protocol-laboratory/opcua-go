@@ -112,7 +112,13 @@ type opcuaConn struct {
 func (s *Server) handleConn(conn *opcuaConn) {
 	channelId := s.nextChannelId()
 	channelLogger := s.logger.With(LogRemoteAddr, conn.conn.RemoteAddr().String()).With(LogChannelId, channelId)
+	channelLogger.Info("starting SecureChannel initialization")
 	secChannel := newSecureChannel(conn, s.config, channelId, channelLogger)
+	err := secChannel.open()
+	if err != nil {
+		channelLogger.Error("failed to open SecureChannel", slog.String("error", err.Error()))
+		return
+	}
 }
 
 func (s *Server) nextChannelId() uint32 {
