@@ -1,11 +1,17 @@
 package opcua
 
+import "log/slog"
+
 type SecureChannel struct {
-	conn *opcuaConn
+	conn      *opcuaConn
+	channelId uint32
+	logger    *slog.Logger
 }
 
-func newSecureChannel(conn *opcuaConn, svcConf *ServerConfig) *SecureChannel {
+func newSecureChannel(conn *opcuaConn, svcConf *ServerConfig, channelId uint32, logger *slog.Logger) *SecureChannel {
 	return &SecureChannel{
-		conn: conn,
+		conn:      conn,
+		channelId: channelId,
+		logger:    logger,
 	}
 }

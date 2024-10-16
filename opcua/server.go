@@ -1,16 +1,14 @@
 package opcua
 
 import (
-	"encoding/binary"
 	"fmt"
 	"log/slog"
 	"net"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/libgox/buffer"
-
-	"github.com/protocol-laboratory/opcua-go/opcua/ua"
 )
 
 type ServerConfig struct {
@@ -22,6 +20,8 @@ type ServerConfig struct {
 	ReadTimeout time.Duration
 
 	Logger *slog.Logger
+
+	nextChannelId atomic.Uint32
 }
 
 func (s *ServerConfig) addr() string {
@@ -110,55 +110,13 @@ type opcuaConn struct {
 }
 
 func (s *Server) handleConn(conn *opcuaConn) {
-	for {
-		if s.config.ReadTimeout > 0 {
-			_ = conn.conn.SetReadDeadline(time.Now().Add(s.config.ReadTimeout))
-		}
-		readLen, err := conn.conn.Read(conn.buffer.WritableSlice())
-		if err != nil {
-			break
-		}
-		err = conn.buffer.AdjustWriteCursor(readLen)
-		if err != nil {
-			break
-		}
-		for {
-			if conn.buffer.ReadableSize() < 8 {
-				break
-			}
+	channelId := s.nextChannelId()
+	channelLogger := s.logger.With(LogRemoteAddr, conn.conn.RemoteAddr().String()).With(LogChannelId, channelId)
+	secChannel := newSecureChannel(conn, s.config, channelId, channelLogger)
+}
 
-			header := make([]byte, 8)
-			err = conn.buffer.PeekExactly(header)
-			if err != nil {
-				break
-			}
-
-			messageLen := int(binary.LittleEndian.Uint32(header[4:8]))
-
-			if conn.buffer.ReadableSize() < messageLen {
-				break
-			}
-
-			bytes := make([]byte, messageLen)
-			err = conn.buffer.ReadExactly(bytes)
-			if err != nil {
-				break
-			}
-			dstBytes, err := s.react(conn, bytes)
-			if err != nil {
-				s.logger.Error("failed to react", slog.String("error", err.Error()))
-				break
-			}
-			write, err := conn.conn.Write(dstBytes)
-			if err != nil {
-				break
-			}
-			if write != len(dstBytes) {
-				break
-			}
-			conn.buffer.Compact()
-		}
-	}
+func (s *Server) nextChannelId() uint32 {
+	return s.config.nextChannelId.Add(1)
 }
 
 func (s *Server) Close() error {
@@ -175,44 +133,4 @@ func (s *Server) Close() error {
 		return nil
 	}
 	return fmt.Errorf("failed to close listener: %w", err)
-}
-
-func (s *Server) react(conn *opcuaConn, bytes []byte) ([]byte, error) {
-	if len(bytes) < 3 {
-		return nil, fmt.Errorf("invalid message length")
-	}
-
-	messageType := string(bytes[:3])
-
-	s.logger.Info("received message", slog.String("type", messageType))
-
-	var buf *buffer.Buffer
-	var err error
-	switch messageType {
-	case "HEL":
-		buf, err = s.handleHello(bytes[8:])
-	default:
-		return nil, fmt.Errorf("unknown message type: %s", messageType)
-	}
-	if err != nil {
-		return nil, err
-	}
-	return buf.ReadAll(), nil
-}
-
-// handleHello Handle "HEL" (Hello Message)
-func (s *Server) handleHello(bytes []byte) (*buffer.Buffer, error) {
-	req, err := ua.DecodeMessageHello(buffer.NewBufferFromBytes(bytes))
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode HEL message: %w", err)
-	}
-
-	ack := &ua.MessageAcknowledge{
-		Version:           req.Version,
-		ReceiveBufferSize: req.ReceiveBufferSize,
-		SendBufferSize:    req.SendBufferSize,
-		MaxMessageSize:    req.MaxMessageSize,
-		MaxChunkCount:     64,
-	}
-	return ack.Buffer()
 }
