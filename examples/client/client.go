@@ -1,10 +1,11 @@
 package main
 
 import (
-	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"golang.org/x/exp/slog"
 
 	"github.com/libgox/addr"
 	"github.com/protocol-laboratory/opcua-go/opcua"

@@ -1,8 +1,9 @@
 package opcua
 
 import (
-	"log/slog"
 	"testing"
+
+	"golang.org/x/exp/slog"
 
 	"github.com/libgox/addr"
 	"github.com/protocol-laboratory/opcua-go/opcua/ua"

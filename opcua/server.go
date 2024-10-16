@@ -2,10 +2,11 @@ package opcua
 
 import (
 	"fmt"
-	"log/slog"
 	"net"
 	"sync"
 	"time"
+
+	"golang.org/x/exp/slog"
 
 	"github.com/libgox/buffer"
 )

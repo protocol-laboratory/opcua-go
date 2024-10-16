@@ -2,8 +2,9 @@ package opcua
 
 import (
 	"errors"
-	"log/slog"
 	"sync/atomic"
+
+	"golang.org/x/exp/slog"
 
 	"github.com/protocol-laboratory/opcua-go/opcua/enc"
 	"github.com/protocol-laboratory/opcua-go/opcua/uamsg"
