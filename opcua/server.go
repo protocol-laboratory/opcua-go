@@ -7,13 +7,13 @@ import (
 	"time"
 
 	"golang.org/x/exp/slog"
-
-	"github.com/libgox/buffer"
 )
 
 type ServerConfig struct {
 	Host string
 	Port int
+
+	handler ServerHandler
 
 	ReceiverBufferSize int
 
@@ -29,6 +29,8 @@ func (s *ServerConfig) addr() string {
 type Server struct {
 	config   *ServerConfig
 	listener net.Listener
+
+	handler ServerHandler
 
 	logger *slog.Logger
 
@@ -49,6 +51,7 @@ func NewServer(config *ServerConfig) (*Server, error) {
 		config:       config,
 		quit:         make(chan bool),
 		channelIdGen: &ChannelIdGen{},
+		handler:      config.handler,
 		logger:       config.Logger,
 	}
 	server.logger.Info("server initialized", slog.String("host", config.Host), slog.Int("port", config.Port))
@@ -97,31 +100,34 @@ func (s *Server) listenLoop() {
 			}
 		}
 		go func() {
-			s.handleConn(&opcuaConn{
-				conn:   netConn,
-				buffer: buffer.NewBuffer(s.config.ReceiverBufferSize),
-			})
+			s.handleConn(netConn)
 		}()
 	}
 }
 
-type opcuaConn struct {
-	conn   net.Conn
-	buffer *buffer.Buffer
-}
-
-func (s *Server) handleConn(conn *opcuaConn) {
+func (s *Server) handleConn(conn net.Conn) {
+	if s.handler != nil {
+		s.handler.ConnectionOpened(conn)
+	}
 	channelId := s.channelIdGen.next()
-	channelLogger := s.logger.With(LogRemoteAddr, conn.conn.RemoteAddr().String()).With(LogChannelId, channelId)
+	channelLogger := s.logger.With(LogRemoteAddr, conn.RemoteAddr().String()).With(LogChannelId, channelId)
 	channelLogger.Info("starting SecureChannel initialization")
 	secChannel := newSecureChannel(conn, s.config, channelId, s.channelIdGen, channelLogger)
 	err := secChannel.open()
 	if err != nil {
+		_ = conn.Close()
+		if s.handler != nil {
+			s.handler.ConnectionClosed(conn)
+		}
 		channelLogger.Error("failed to open SecureChannel", slog.Any("err", err.Error()))
 		return
 	}
 	err = secChannel.serve()
 	if err != nil {
+		_ = conn.Close()
+		if s.handler != nil {
+			s.handler.ConnectionClosed(conn)
+		}
 		secChannel.logger.Error("processing request error", slog.Any("err", err))
 	}
 }
