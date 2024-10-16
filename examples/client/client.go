@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/libgox/addr"
 	"github.com/protocol-laboratory/opcua-go/opcua"
 	"github.com/protocol-laboratory/opcua-go/opcua/ua"
 )
@@ -14,7 +15,7 @@ func main() {
 	logger := slog.Default()
 
 	config := &opcua.ClientConfig{
-		Address: opcua.Address{
+		Address: addr.Address{
 			Host: "localhost",
 			Port: 4840,
 		},

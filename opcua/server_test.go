@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"testing"
 
+	"github.com/libgox/addr"
 	"github.com/protocol-laboratory/opcua-go/opcua/ua"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -26,7 +27,7 @@ func newTestSimpleClientServer(t *testing.T, serverConfig *ServerConfig, clientC
 	require.NoError(t, err, "Server should start without error")
 
 	clientConfig.Logger = testLogger
-	clientConfig.Address = Address{
+	clientConfig.Address = addr.Address{
 		Host: serverConfig.Host,
 		Port: port,
 	}
