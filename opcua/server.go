@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"net"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/libgox/buffer"
@@ -20,8 +19,6 @@ type ServerConfig struct {
 	ReadTimeout time.Duration
 
 	Logger *slog.Logger
-
-	nextChannelId atomic.Uint32
 }
 
 func (s *ServerConfig) addr() string {
@@ -33,6 +30,8 @@ type Server struct {
 	listener net.Listener
 
 	logger *slog.Logger
+
+	channelIdGen *ChannelIdGen
 
 	mutex sync.RWMutex
 	quit  chan bool
@@ -46,9 +45,10 @@ func NewServer(config *ServerConfig) (*Server, error) {
 		return nil, fmt.Errorf("receiver buffer size must be at least 9 bytes")
 	}
 	server := &Server{
-		config: config,
-		quit:   make(chan bool),
-		logger: config.Logger,
+		config:       config,
+		quit:         make(chan bool),
+		channelIdGen: &ChannelIdGen{},
+		logger:       config.Logger,
 	}
 	server.logger.Info("server initialized", slog.String("host", config.Host), slog.Int("port", config.Port))
 	return server, nil
@@ -110,19 +110,19 @@ type opcuaConn struct {
 }
 
 func (s *Server) handleConn(conn *opcuaConn) {
-	channelId := s.nextChannelId()
+	channelId := s.channelIdGen.next()
 	channelLogger := s.logger.With(LogRemoteAddr, conn.conn.RemoteAddr().String()).With(LogChannelId, channelId)
 	channelLogger.Info("starting SecureChannel initialization")
-	secChannel := newSecureChannel(conn, s.config, channelId, channelLogger)
+	secChannel := newSecureChannel(conn, s.config, channelId, s.channelIdGen, channelLogger)
 	err := secChannel.open()
 	if err != nil {
-		channelLogger.Error("failed to open SecureChannel", slog.String("error", err.Error()))
+		channelLogger.Error("failed to open SecureChannel", slog.Any("err", err.Error()))
 		return
 	}
-}
-
-func (s *Server) nextChannelId() uint32 {
-	return s.config.nextChannelId.Add(1)
+	err = secChannel.serve()
+	if err != nil {
+		secChannel.logger.Error("processing request error", slog.Any("err", err))
+	}
 }
 
 func (s *Server) Close() error {
