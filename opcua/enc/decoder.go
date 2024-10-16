@@ -167,14 +167,14 @@ func (d *bufferedDecoder) fillMessageBody(msg *uamsg.Message) error {
 		// TODO process more Identifier type
 		switch messageBody.TypeId.Identifier {
 		case uamsg.ObjectOpenSecureChannelRequest_Encoding_DefaultBinary.Identifier:
-			service := &uamsg.OpenSecureChannelServiceRequest{}
+			service := &uamsg.OpenSecureChannelRequest{}
 			err = d.readTo(reflect.ValueOf(service).Elem())
 			if err != nil {
 				return err
 			}
 			messageBody.Service = service
 		case uamsg.ObjectOpenSecureChannelResponse_Encoding_DefaultBinary.Identifier:
-			service := &uamsg.OpenSecureChannelServiceResponse{}
+			service := &uamsg.OpenSecureChannelResponse{}
 			err = d.readTo(reflect.ValueOf(service).Elem())
 			if err != nil {
 				return err

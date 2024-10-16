@@ -144,7 +144,7 @@ func getOpenSecureChannelRequestMsgTestCase() *encodeTestCase {
 					TypeId: &uamsg.ExpandedNodeId{
 						NodeId: &uamsg.ObjectOpenSecureChannelRequest_Encoding_DefaultBinary,
 					},
-					Service: &uamsg.OpenSecureChannelServiceRequest{
+					Service: &uamsg.OpenSecureChannelRequest{
 						Header: &uamsg.RequestHeader{
 							AuthenticationToken: &uamsg.NodeId{
 								EncodingType: uamsg.TwoByte,
@@ -203,7 +203,7 @@ func getOpenSecureChannelResponseMsgTestCase() *encodeTestCase {
 					TypeId: &uamsg.ExpandedNodeId{
 						NodeId: &uamsg.ObjectOpenSecureChannelResponse_Encoding_DefaultBinary,
 					},
-					Service: &uamsg.OpenSecureChannelServiceResponse{
+					Service: &uamsg.OpenSecureChannelResponse{
 						Header: &uamsg.ResponseHeader{
 							Timestamp:     0,
 							RequestHandle: 1,

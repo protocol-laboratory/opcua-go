@@ -1,6 +1,6 @@
 package uamsg
 
-type OpenSecureChannelServiceRequest struct {
+type OpenSecureChannelRequest struct {
 	Header                *RequestHeader
 	ClientProtocolVersion uint32
 	RequestType           SecurityTokenRequestType
@@ -9,7 +9,7 @@ type OpenSecureChannelServiceRequest struct {
 	RequestedLifetime     uint32
 }
 
-type OpenSecureChannelServiceResponse struct {
+type OpenSecureChannelResponse struct {
 	Header                *ResponseHeader
 	ServerProtocolVersion uint32
 	SecurityToken         *ChannelSecurityToken
