@@ -5,10 +5,9 @@ import (
 	"log/slog"
 	"sync/atomic"
 
-	"github.com/protocol-laboratory/opcua-go/opcua/util"
-
 	"github.com/protocol-laboratory/opcua-go/opcua/enc"
 	"github.com/protocol-laboratory/opcua-go/opcua/uamsg"
+	"github.com/protocol-laboratory/opcua-go/opcua/util"
 )
 
 type SecureChannel struct {
@@ -193,20 +192,7 @@ func (secChan *SecureChannel) handleOpenSecureChannel() error {
 		},
 	}
 
-	bytes, err := secChan.encoder.Encode(rsp, int(secChan.maxResponseMessageSize))
-	if err != nil {
-		return err
-	}
-
-	for _, content := range bytes {
-		_, err = secChan.conn.conn.Write(content)
-		if err != nil {
-			return err
-		}
-	}
-
-	//// TODO should return ERROR STATUS CODE to client if any error occur
-	return nil
+	return secChan.sendResponse(rsp)
 }
 
 func (secChan *SecureChannel) serve() error {
