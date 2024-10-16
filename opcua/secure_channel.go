@@ -2,7 +2,6 @@ package opcua
 
 import (
 	"errors"
-	"net"
 	"sync/atomic"
 
 	"golang.org/x/exp/slog"
@@ -13,7 +12,7 @@ import (
 )
 
 type SecureChannel struct {
-	conn         net.Conn
+	conn         *Conn
 	channelId    uint32
 	channelIdGen *ChannelIdGen
 	logger       *slog.Logger
@@ -23,6 +22,8 @@ type SecureChannel struct {
 	maxChunkCount          uint32
 	maxResponseMessageSize uint32
 	endpointUrl            string
+
+	handler ServerHandler
 
 	// TODO conn set read timeout
 	decoder enc.Decoder
@@ -37,11 +38,17 @@ const (
 	ProtocolVersion uint32 = 0
 )
 
-func newSecureChannel(conn net.Conn, svcConf *ServerConfig, channelId uint32, channelIdGen *ChannelIdGen, logger *slog.Logger) *SecureChannel {
+func newSecureChannel(conn *Conn,
+	svcConf *ServerConfig,
+	channelId uint32,
+	channelIdGen *ChannelIdGen,
+	handler ServerHandler,
+	logger *slog.Logger) *SecureChannel {
 	return &SecureChannel{
 		conn:         conn,
 		channelId:    channelId,
 		channelIdGen: channelIdGen,
+		handler:      handler,
 		logger:       logger,
 		decoder:      enc.NewDefaultDecoder(conn, int64(svcConf.ReceiverBufferSize)),
 		encoder:      enc.NewDefaultEncoder(),
@@ -83,8 +90,12 @@ func (secChan *SecureChannel) handleHello() error {
 	secChan.sendMaxChunkSize = helloBody.ReceiveBufferSize
 	secChan.maxChunkCount = helloBody.MaxChunkCount
 	secChan.maxResponseMessageSize = helloBody.MaxMessageSize
-	// TODO need callback to validate endpoint
 	secChan.endpointUrl = helloBody.EndpointUrl
+
+	err = secChan.handler.ValidateHello(secChan.conn, helloBody)
+	if err != nil {
+		return err
+	}
 
 	resp := &uamsg.Message{
 		MessageHeader: &uamsg.MessageHeader{
@@ -143,7 +154,7 @@ func (secChan *SecureChannel) handleOpenSecureChannel() error {
 		return errors.New("only support NONE security mode")
 	}
 
-	serverNonce := []byte{}
+	var serverNonce []byte
 	channelId := secChan.channelIdGen.next()
 	tokenId := secChan.getNextTokenId()
 
