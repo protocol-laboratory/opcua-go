@@ -27,7 +27,7 @@ type SecureChannel struct {
 	decoder enc.Decoder
 	encoder enc.Encoder
 
-	nextTokenId        atomic.Uint32
+	currentTokenId     atomic.Uint32
 	nextSequenceNumber atomic.Uint32
 }
 
@@ -162,16 +162,12 @@ func (secChan *SecureChannel) handleOpenSecureChannel() error {
 		},
 		MessageBody: &uamsg.GenericBody{
 			TypeId: &uamsg.ExpandedNodeId{
-				NodeId: &uamsg.NodeId{
-					EncodingType: uamsg.FourByte,
-					Namespace:    0,
-					Identifier:   uint16(449),
-				},
+				NodeId: &uamsg.ObjectOpenSecureChannelResponse_Encoding_DefaultBinary,
 			},
 			Service: &uamsg.OpenSecureChannelServiceResponse{
 				Header: &uamsg.ResponseHeader{
 					Timestamp:     util.GetCurrentUaTimestamp(),
-					RequestHandle: 0,
+					RequestHandle: openSecChanBody.Header.RequestHandle,
 					ServiceResult: 0,
 					ServiceDiagnostics: &uamsg.DiagnosticInfo{
 						EncodingMask: 0x00,
@@ -228,11 +224,100 @@ func (secChan *SecureChannel) serve() error {
 }
 
 func (secChan *SecureChannel) handleRequest(req *uamsg.Message) error {
+	generic, ok := req.MessageBody.(*uamsg.GenericBody)
+	if !ok {
+		return errors.New("invalid message body")
+	}
+
+	var rsp *uamsg.Message
+	var err error
+	switch generic.Service.(type) {
+	case *uamsg.OpenSecureChannelServiceRequest:
+		rsp, err = secChan.handleOpenSecureChannelServiceRequest(req)
+	case *uamsg.CloseSecureChannelRequest:
+		rsp, err = secChan.handleCloseSecureChannelRequest(req)
+	case *uamsg.ReadRequest:
+		rsp, err = secChan.handleReadRequest(req)
+	case *uamsg.CreateSessionRequest:
+		rsp, err = secChan.handleCreateSessionRequest(req)
+	case *uamsg.ActivateSessionRequest:
+		rsp, err = secChan.handleActivateSessionRequest(req)
+	case *uamsg.CloseSessionRequest:
+		rsp, err = secChan.handleCloseSessionRequest(req)
+	default:
+		secChan.logger.Error("unsupported an service", "service", generic.Service)
+		rsp = secChan.createErrorMessage(req.RequestId, 0, uamsg.ErrorCodeBadServiceUnsupported)
+	}
+
+	if err != nil {
+		return err
+	}
+	return secChan.sendResponse(rsp)
+}
+
+func (secChan *SecureChannel) sendResponse(rsp *uamsg.Message) error {
+	bytes, err := secChan.encoder.Encode(rsp, int(secChan.maxResponseMessageSize))
+	if err != nil {
+		return err
+	}
+
+	for _, content := range bytes {
+		length, err := secChan.conn.conn.Write(content)
+		if err != nil {
+			return err
+		}
+		if length != len(content) {
+			return errors.New("write length not match")
+		}
+	}
 	return nil
 }
 
+func (secChan *SecureChannel) createErrorMessage(reqId uint32, reqHandle uamsg.IntegerId, ec uamsg.ErrorCode) *uamsg.Message {
+	return &uamsg.Message{
+		MessageHeader: &uamsg.MessageHeader{
+			MessageType:     uamsg.MsgMessageType,
+			SecureChannelId: &secChan.channelId,
+		},
+		SecurityHeader: &uamsg.SymmetricSecurityHeader{
+			TokenId: secChan.getCurrentTokenId(),
+		},
+		SequenceHeader: &uamsg.SequenceHeader{
+			SequenceNumber: secChan.getNextSequenceNumber(),
+			RequestId:      reqId,
+		},
+		MessageBody: &uamsg.GenericBody{
+			TypeId: &uamsg.ExpandedNodeId{
+				NodeId: &uamsg.ObjectServiceFault_Encoding_DefaultBinary,
+			},
+			Service: &uamsg.ServiceFault{
+				Header: &uamsg.ResponseHeader{
+					Timestamp:     util.GetCurrentUaTimestamp(),
+					RequestHandle: reqHandle,
+					ServiceResult: uamsg.StatusCode(ec),
+					ServiceDiagnostics: &uamsg.DiagnosticInfo{
+						EncodingMask: 0x00,
+					},
+					StringTable: nil,
+					AdditionalHeader: &uamsg.ExtensionObject{
+						TypeId: &uamsg.NodeId{
+							EncodingType: uamsg.TwoByte,
+							Identifier:   byte(0),
+						},
+						Encoding: 0x00,
+					},
+				},
+			},
+		},
+	}
+}
+
+func (secChan *SecureChannel) getCurrentTokenId() uint32 {
+	return secChan.currentTokenId.Load()
+}
+
 func (secChan *SecureChannel) getNextTokenId() uint32 {
-	return secChan.nextTokenId.Add(1)
+	return secChan.currentTokenId.Add(1)
 }
 
 func (secChan *SecureChannel) getNextSequenceNumber() uint32 {
