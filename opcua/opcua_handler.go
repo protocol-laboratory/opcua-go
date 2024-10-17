@@ -17,47 +17,47 @@ type ServerHandler interface {
 	BeforeRead(conn *Conn, readMessage *uamsg.ReadRequest) error
 }
 
-type DefaultServerHandler struct {
+type NoopServerHandler struct {
 }
 
-func (d *DefaultServerHandler) ConnectionOpened(conn *Conn) {
+func (d *NoopServerHandler) ConnectionOpened(conn *Conn) {
 }
 
-func (d *DefaultServerHandler) ConnectionClosed(conn *Conn) {
+func (d *NoopServerHandler) ConnectionClosed(conn *Conn) {
 }
 
-func (d *DefaultServerHandler) BeforeHello(conn *Conn, helloMessage *uamsg.HelloMessageExtras) error {
+func (d *NoopServerHandler) BeforeHello(conn *Conn, helloMessage *uamsg.HelloMessageExtras) error {
 	return nil
 }
 
-func (d *DefaultServerHandler) BeforeOpenSecureChannel(conn *Conn, openSecureChannelMessage *uamsg.OpenSecureChannelRequest) error {
+func (d *NoopServerHandler) BeforeOpenSecureChannel(conn *Conn, openSecureChannelMessage *uamsg.OpenSecureChannelRequest) error {
 	return nil
 }
 
-func (d *DefaultServerHandler) BeforeCloseSecureChannel(conn *Conn, closeSecureChannelMessage *uamsg.CloseSecureChannelRequest) error {
+func (d *NoopServerHandler) BeforeCloseSecureChannel(conn *Conn, closeSecureChannelMessage *uamsg.CloseSecureChannelRequest) error {
 	return nil
 }
 
-func (d *DefaultServerHandler) BeforeCreateSession(conn *Conn, createSessionMessage *uamsg.CreateSessionRequest) error {
+func (d *NoopServerHandler) BeforeCreateSession(conn *Conn, createSessionMessage *uamsg.CreateSessionRequest) error {
 	return nil
 }
 
-func (d *DefaultServerHandler) BeforeActivateSession(conn *Conn, activateSessionMessage *uamsg.ActivateSessionRequest) error {
+func (d *NoopServerHandler) BeforeActivateSession(conn *Conn, activateSessionMessage *uamsg.ActivateSessionRequest) error {
 	return nil
 }
 
-func (d *DefaultServerHandler) BeforeCloseSession(conn *Conn, closeSessionMessage *uamsg.CloseSessionRequest) error {
+func (d *NoopServerHandler) BeforeCloseSession(conn *Conn, closeSessionMessage *uamsg.CloseSessionRequest) error {
 	return nil
 }
 
-func (d *DefaultServerHandler) BeforeGetEndpoints(conn *Conn, getEndpointsMessage *uamsg.GetEndpointsRequest) error {
+func (d *NoopServerHandler) BeforeGetEndpoints(conn *Conn, getEndpointsMessage *uamsg.GetEndpointsRequest) error {
 	return nil
 }
 
-func (d *DefaultServerHandler) BeforeBrowse(conn *Conn, browseMessage *uamsg.BrowseRequest) error {
+func (d *NoopServerHandler) BeforeBrowse(conn *Conn, browseMessage *uamsg.BrowseRequest) error {
 	return nil
 }
 
-func (d *DefaultServerHandler) BeforeRead(conn *Conn, readMessage *uamsg.ReadRequest) error {
+func (d *NoopServerHandler) BeforeRead(conn *Conn, readMessage *uamsg.ReadRequest) error {
 	return nil
 }

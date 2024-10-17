@@ -101,7 +101,7 @@ type ExpandedNodeId struct {
 	ServerIndex  uint32
 }
 
-type SessionAuthenticationToken interface{}
+type SessionAuthenticationToken NodeId
 
 type ExtensionObject struct {
 	TypeId   *NodeId
