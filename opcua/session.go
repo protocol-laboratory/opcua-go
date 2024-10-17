@@ -33,6 +33,7 @@ func getUniqueSessionId() uamsg.NodeId {
 	return uamsg.NodeId{
 		EncodingType: uamsg.GuidType,
 		Namespace:    1,
+		// TODO should create the opcua-guid from a real uuid
 		Identifier: uamsg.Guid{
 			Data1: rand.Uint32(),
 			Data2: uint16(rand.Uint32() % 65535),
