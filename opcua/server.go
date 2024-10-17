@@ -26,15 +26,18 @@ func (s *ServerConfig) addr() string {
 	return fmt.Sprintf("%s:%d", s.Host, s.Port)
 }
 
+// Server sort fields by config, opcua biz, inner fields, callbacks, logger, others
 type Server struct {
-	config   *ServerConfig
+	config *ServerConfig
+
+	channelIdGen   *ChannelIdGen
+	sessionManager *SessionManager
+
 	listener net.Listener
 
 	handler ServerHandler
 
 	logger *slog.Logger
-
-	channelIdGen *ChannelIdGen
 
 	mutex sync.RWMutex
 	quit  chan bool
@@ -48,13 +51,14 @@ func NewServer(config *ServerConfig) (*Server, error) {
 		return nil, fmt.Errorf("receiver buffer size must be at least 9 bytes")
 	}
 	server := &Server{
-		config:       config,
-		quit:         make(chan bool),
-		channelIdGen: &ChannelIdGen{},
-		logger:       config.Logger,
+		config:         config,
+		channelIdGen:   &ChannelIdGen{},
+		sessionManager: newSessionManager(),
+		logger:         config.Logger,
+		quit:           make(chan bool),
 	}
 	if config.Handler == nil {
-		server.handler = &DefaultServerHandler{}
+		server.handler = &NoopServerHandler{}
 	}
 	server.logger.Info("server initialized", slog.String("host", config.Host), slog.Int("port", config.Port))
 	return server, nil
@@ -114,7 +118,7 @@ func (s *Server) handleConn(conn *Conn) {
 	channelId := s.channelIdGen.next()
 	channelLogger := s.logger.With(LogRemoteAddr, conn.RemoteAddr().String()).With(LogChannelId, channelId)
 	channelLogger.Info("starting SecureChannel initialization")
-	secChannel := newSecureChannel(conn, s.config, channelId, s.channelIdGen, s.handler, channelLogger)
+	secChannel := newSecureChannel(conn, s.config, channelId, s.channelIdGen, s.sessionManager, s.handler, channelLogger)
 	err := secChannel.open()
 	if err != nil {
 		_ = conn.Close()

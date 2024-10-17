@@ -3,6 +3,6 @@ package opcua
 type SessionManager struct {
 }
 
-func NewSessionManager() *SessionManager {
+func newSessionManager() *SessionManager {
 	return &SessionManager{}
 }

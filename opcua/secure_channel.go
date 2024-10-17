@@ -12,18 +12,18 @@ import (
 )
 
 type SecureChannel struct {
-	conn         *Conn
-	channelId    uint32
-	channelIdGen *ChannelIdGen
-	logger       *slog.Logger
+	conn           *Conn
+	channelId      uint32
+	channelIdGen   *ChannelIdGen
+	sessionManager *SessionManager
+	handler        ServerHandler
+	logger         *slog.Logger
 
 	receiveMaxChunkSize    uint32
 	sendMaxChunkSize       uint32
 	maxChunkCount          uint32
 	maxResponseMessageSize uint32
 	endpointUrl            string
-
-	handler ServerHandler
 
 	// TODO conn set read timeout
 	decoder enc.Decoder
@@ -42,16 +42,18 @@ func newSecureChannel(conn *Conn,
 	svcConf *ServerConfig,
 	channelId uint32,
 	channelIdGen *ChannelIdGen,
+	sessionManager *SessionManager,
 	handler ServerHandler,
 	logger *slog.Logger) *SecureChannel {
 	return &SecureChannel{
-		conn:         conn,
-		channelId:    channelId,
-		channelIdGen: channelIdGen,
-		handler:      handler,
-		logger:       logger,
-		decoder:      enc.NewDefaultDecoder(conn, int64(svcConf.ReceiverBufferSize)),
-		encoder:      enc.NewDefaultEncoder(),
+		conn:           conn,
+		channelId:      channelId,
+		channelIdGen:   channelIdGen,
+		sessionManager: sessionManager,
+		handler:        handler,
+		logger:         logger,
+		decoder:        enc.NewDefaultDecoder(conn, int64(svcConf.ReceiverBufferSize)),
+		encoder:        enc.NewDefaultEncoder(),
 	}
 }
 
@@ -227,6 +229,9 @@ func (secChan *SecureChannel) handleRequest(req *uamsg.Message) error {
 	if !ok {
 		return errors.New("invalid message body")
 	}
+
+	// TODO check channel id
+	// TODO check token id
 
 	var rsp *uamsg.Message
 	var err error
