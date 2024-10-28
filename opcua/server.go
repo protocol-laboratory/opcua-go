@@ -17,6 +17,8 @@ type ServerConfig struct {
 
 	ReceiverBufferSize int
 
+	ReadRequestNodeLimit int
+
 	ReadTimeout time.Duration
 
 	Logger *slog.Logger
