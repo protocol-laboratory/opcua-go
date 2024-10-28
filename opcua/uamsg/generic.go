@@ -1,10 +1,26 @@
 package uamsg
 
 const (
+	SecurityPolicyUriAes128Sha256Rsa0aep string = "http://opcfoundation.org/UA/SecurityPolicy#Aes128_Sha256_Rsa0aep"
+	SecurityPolicyUriAes256Sha256RsaPss  string = "http://opcfoundation.org/UA/SecurityPolicy#Aes256_Sha256_RsaPss"
+	SecurityPolicyUriBasic128Rsa15       string = "http://opcfoundation.org/UA/SecurityPolicy#Basic128Rsa15"
+	SecurityPolicyUriBasic256            string = "http://opcfoundation.org/UA/SecurityPolicy#Basic256"
+	SecurityPolicyUriBasic256Sha256      string = "http://opcfoundation.org/UA/SecurityPolicy#Basic256Sha256"
+	SecurityPolicyUriNone                string = "http://opcfoundation.org/UA/SecurityPolicy#None"
+)
+
+const (
 	MessageSecurityModeInvalid        MessageSecurityModeEnum = 0
 	MessageSecurityModeNone           MessageSecurityModeEnum = 1
 	MessageSecurityModeSign           MessageSecurityModeEnum = 2
 	MessageSecurityModeSignAndEncrypt MessageSecurityModeEnum = 3
+)
+
+const (
+	UserTokenTypeAnonymous   UserTokenTypeEnum = 0
+	UserTokenTypeUsername    UserTokenTypeEnum = 1
+	UserTokenTypeCertificate UserTokenTypeEnum = 2
+	UserTokenTypeIssuedToken UserTokenTypeEnum = 3
 )
 
 type (
