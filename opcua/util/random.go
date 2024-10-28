@@ -7,6 +7,6 @@ import (
 func GenerateRandomBytes(length int) []byte {
 	bytes := make([]byte, length)
 	// TODO better error handling
-	rand.Read(bytes)
+	_, _ = rand.Read(bytes)
 	return bytes
 }
