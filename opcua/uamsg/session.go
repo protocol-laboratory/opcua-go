@@ -43,17 +43,6 @@ type CreateSessionResponse struct {
 	MaxRequestMessageSize      uint32
 }
 
-type EndpointDescription struct {
-	EndpointUrl         string
-	Server              *ApplicationDescription
-	ServerCertificate   []byte
-	SecurityMode        MessageSecurityModeEnum
-	SecurityPolicyUri   string
-	UserIdentityTokens  []*UserTokenPolicy
-	TransportProfileUri string
-	SecurityLevel       byte
-}
-
 type UserTokenPolicy struct {
 	PolicyId          string
 	TokenType         UserTokenTypeEnum
