@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"io"
 	"math"
 	"reflect"
@@ -265,7 +266,7 @@ func (d *bufferedDecoder) fillMessageBody(msg *uamsg.Message) error {
 			}
 			messageBody.Service = service
 		default:
-			return errors.New("unknown type service")
+			return fmt.Errorf("unsupported service type: %v", messageBody.TypeId.Identifier)
 		}
 		msg.MessageBody = messageBody
 	default:
