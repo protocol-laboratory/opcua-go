@@ -194,6 +194,76 @@ func (d *bufferedDecoder) fillMessageBody(msg *uamsg.Message) error {
 				return err
 			}
 			messageBody.Service = service
+		case uamsg.ObjectActivateSessionRequest_Encoding_DefaultBinary.Identifier:
+			service := &uamsg.ActivateSessionRequest{}
+			err = d.readTo(reflect.ValueOf(service).Elem())
+			if err != nil {
+				return err
+			}
+			messageBody.Service = service
+		case uamsg.ObjectActivateSessionResponse_Encoding_DefaultBinary.Identifier:
+			service := &uamsg.ActivateSessionResponse{}
+			err = d.readTo(reflect.ValueOf(service).Elem())
+			if err != nil {
+				return err
+			}
+			messageBody.Service = service
+		case uamsg.ObjectGetEndpointsRequest_Encoding_DefaultBinary.Identifier:
+			service := &uamsg.GetEndpointsRequest{}
+			err = d.readTo(reflect.ValueOf(service).Elem())
+			if err != nil {
+				return err
+			}
+			messageBody.Service = service
+		case uamsg.ObjectGetEndpointsResponse_Encoding_DefaultBinary.Identifier:
+			service := &uamsg.GetEndpointsResponse{}
+			err = d.readTo(reflect.ValueOf(service).Elem())
+			if err != nil {
+				return err
+			}
+			messageBody.Service = service
+		case uamsg.ObjectReadRequest_Encoding_DefaultBinary.Identifier:
+			service := &uamsg.ReadRequest{}
+			err = d.readTo(reflect.ValueOf(service).Elem())
+			if err != nil {
+				return err
+			}
+			messageBody.Service = service
+		case uamsg.ObjectReadResponse_Encoding_DefaultBinary.Identifier:
+			service := &uamsg.ReadResponse{}
+			err = d.readTo(reflect.ValueOf(service).Elem())
+			if err != nil {
+				return err
+			}
+			messageBody.Service = service
+		case uamsg.ObjectCloseSecureChannelRequest_Encoding_DefaultBinary.Identifier:
+			service := &uamsg.CloseSessionRequest{}
+			err = d.readTo(reflect.ValueOf(service).Elem())
+			if err != nil {
+				return err
+			}
+			messageBody.Service = service
+		case uamsg.ObjectCloseSecureChannelResponse_Encoding_DefaultBinary.Identifier:
+			service := &uamsg.CloseSessionResponse{}
+			err = d.readTo(reflect.ValueOf(service).Elem())
+			if err != nil {
+				return err
+			}
+			messageBody.Service = service
+		case uamsg.ObjectCloseSessionRequest_Encoding_DefaultBinary.Identifier:
+			service := &uamsg.CloseSessionRequest{}
+			err = d.readTo(reflect.ValueOf(service).Elem())
+			if err != nil {
+				return err
+			}
+			messageBody.Service = service
+		case uamsg.ObjectCloseSessionResponse_Encoding_DefaultBinary.Identifier:
+			service := &uamsg.CloseSessionResponse{}
+			err = d.readTo(reflect.ValueOf(service).Elem())
+			if err != nil {
+				return err
+			}
+			messageBody.Service = service
 		default:
 			return errors.New("unknown type service")
 		}
