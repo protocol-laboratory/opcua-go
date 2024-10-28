@@ -53,7 +53,7 @@ func newSecureChannel(conn *Conn,
 		handler:        handler,
 		logger:         logger,
 		decoder:        enc.NewDefaultDecoder(conn, int64(svcConf.ReceiverBufferSize)),
-		encoder:        enc.NewDefaultEncoder(),
+		encoder:        enc.NewDefaultEncoder(svcConf.MaxResponseSize),
 	}
 }
 

@@ -70,7 +70,7 @@ func showByteSlice(s []byte) {
 func getHelloMsgTestCase() *encodeTestCase {
 	return &encodeTestCase{
 		name: "encode hello msg",
-		e:    &DefaultEncoder{},
+		e:    NewDefaultEncoder(64 * 1024),
 		args: encodeArgs{
 			v: &uamsg.Message{
 				MessageHeader: &uamsg.MessageHeader{
@@ -98,7 +98,7 @@ func getHelloMsgTestCase() *encodeTestCase {
 func getAcknowledgeMsgTestCase() *encodeTestCase {
 	return &encodeTestCase{
 		name: "encode acknowledge msg",
-		e:    &DefaultEncoder{},
+		e:    NewDefaultEncoder(64 * 1024),
 		args: encodeArgs{
 			v: &uamsg.Message{
 				MessageHeader: &uamsg.MessageHeader{
@@ -124,7 +124,7 @@ func getAcknowledgeMsgTestCase() *encodeTestCase {
 func getOpenSecureChannelRequestMsgTestCase() *encodeTestCase {
 	return &encodeTestCase{
 		name: "encode open secure channel request msg",
-		e:    &DefaultEncoder{},
+		e:    NewDefaultEncoder(64 * 1024),
 		args: encodeArgs{
 			v: &uamsg.Message{
 				MessageHeader: &uamsg.MessageHeader{
@@ -183,7 +183,7 @@ func getOpenSecureChannelRequestMsgTestCase() *encodeTestCase {
 func getOpenSecureChannelResponseMsgTestCase() *encodeTestCase {
 	return &encodeTestCase{
 		name: "encode open secure channel response msg",
-		e:    &DefaultEncoder{},
+		e:    NewDefaultEncoder(64 * 1024),
 		args: encodeArgs{
 			v: &uamsg.Message{
 				MessageHeader: &uamsg.MessageHeader{
@@ -243,7 +243,7 @@ func getOpenSecureChannelResponseMsgTestCase() *encodeTestCase {
 func getCreateSessionRequestMsgTestCase() *encodeTestCase {
 	return &encodeTestCase{
 		name: "encode create session request msg",
-		e:    &DefaultEncoder{},
+		e:    NewDefaultEncoder(64 * 1024),
 		args: encodeArgs{
 			v: &uamsg.Message{
 				MessageHeader: &uamsg.MessageHeader{
@@ -314,7 +314,7 @@ func getCreateSessionRequestMsgTestCase() *encodeTestCase {
 func getActiveSessionRequestMsgTestCase() *encodeTestCase {
 	return &encodeTestCase{
 		name: "encode active session request msg",
-		e:    &DefaultEncoder{},
+		e:    NewDefaultEncoder(64 * 1024),
 		args: encodeArgs{
 			v: &uamsg.Message{
 				MessageHeader: &uamsg.MessageHeader{
@@ -386,7 +386,7 @@ func getActiveSessionRequestMsgTestCase() *encodeTestCase {
 func getActiveSessionResponseMsgTestCase() *encodeTestCase {
 	return &encodeTestCase{
 		name: "encode active session response msg",
-		e:    &DefaultEncoder{},
+		e:    NewDefaultEncoder(64 * 1024),
 		args: encodeArgs{
 			v: &uamsg.Message{
 				MessageHeader: &uamsg.MessageHeader{
