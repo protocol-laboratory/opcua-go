@@ -279,6 +279,12 @@ func (d *bufferedDecoder) readTo(value reflect.Value) error {
 	valueType := value.Type()
 	switch value.Kind() {
 	// set new value by value kind
+	case reflect.Bool:
+		dataByte, err := d.r.readByte()
+		if err != nil {
+			return err
+		}
+		value.SetBool(dataByte == 1)
 	case reflect.Uint8:
 		dataByte, err := d.r.readByte()
 		if err != nil {
@@ -360,7 +366,7 @@ func (d *bufferedDecoder) readTo(value reflect.Value) error {
 			return err
 		}
 	default:
-		return errors.New("unsupported type")
+		return fmt.Errorf("unsupported type: %v", valueType.Kind())
 	}
 
 	return nil
