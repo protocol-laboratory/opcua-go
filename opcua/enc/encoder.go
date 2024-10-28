@@ -24,10 +24,13 @@ type FastEncoder interface {
 
 type DefaultEncoder struct {
 	sequenceNumberGenerator func() uint32
+	maxEncodedSize          int
 }
 
-func NewDefaultEncoder() *DefaultEncoder {
-	return &DefaultEncoder{}
+func NewDefaultEncoder(maxEncodedSize int) *DefaultEncoder {
+	return &DefaultEncoder{
+		maxEncodedSize: maxEncodedSize,
+	}
 }
 
 func (e *DefaultEncoder) Encode(v *uamsg.Message, chunkSize int) ([][]byte, error) {
@@ -67,6 +70,7 @@ func (e *DefaultEncoder) Encode(v *uamsg.Message, chunkSize int) ([][]byte, erro
 
 	leftBodySize := len(dataBytes)
 	headerLength := messageHeaderLength + securityHeaderLength + sequenceHeaderLength
+	totalSize := 0
 
 	for leftBodySize > 0 {
 		tempBuff := bytes.NewBuffer(nil)
@@ -120,6 +124,11 @@ func (e *DefaultEncoder) Encode(v *uamsg.Message, chunkSize int) ([][]byte, erro
 				return nil, err
 			}
 		}
+
+		totalSize += tempBuff.Len()
+		if totalSize > e.maxEncodedSize {
+			return nil, errors.New("exceed max encoded size")
+		}
 		chunks = append(chunks, tempBuff.Bytes())
 	}
 	return chunks, nil
@@ -166,6 +175,9 @@ func genericEncoder(v interface{}) ([]byte, error) {
 		err := binary.Write(buff, binary.LittleEndian, length)
 		if err != nil {
 			return nil, err
+		}
+		if length == 0 || length == -1 {
+			return buff.Bytes(), nil
 		}
 
 		for i := 0; i < value.Len(); i++ {

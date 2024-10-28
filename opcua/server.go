@@ -16,6 +16,7 @@ type ServerConfig struct {
 	Handler ServerHandler
 
 	ReceiverBufferSize int
+	MaxResponseSize    int
 
 	ReadRequestNodeLimit int
 
@@ -51,6 +52,9 @@ func NewServer(config *ServerConfig) (*Server, error) {
 	}
 	if config.ReceiverBufferSize < 9 {
 		return nil, fmt.Errorf("receiver buffer size must be at least 9 bytes")
+	}
+	if config.MaxResponseSize <= 0 {
+		config.MaxResponseSize = 64 * 1024
 	}
 	server := &Server{
 		config:         config,
