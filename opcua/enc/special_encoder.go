@@ -430,7 +430,76 @@ func VariantEncoder(v interface{}) ([]byte, error) {
 	buff.WriteByte(value.EncodingMask)
 
 	// type-encoding implemented according to the table specified by the OPC UA protocol
-	encodingFn := func(encodingMask byte, v interface{}) ([]byte, error) {
+	encodingFn := encodingFn(buff)
+
+	switch {
+	case value.EncodingMask&0xff == 0:
+		// null variant, nothing to do here
+	case value.EncodingMask&0x40 != 0:
+		// multidimensional matrix
+		// when Value stores a multidimensional matrix
+		// ArrayLength stores the number of all elements of the matrix.
+		err := binary.Write(buff, binary.LittleEndian, value.ArrayLength)
+		if err != nil {
+			return nil, err
+		}
+		vv := reflect.ValueOf(value.Value)
+		for i := 0; i < vv.Len(); i++ {
+			for j := 0; j < vv.Index(i).Len(); j++ {
+				tempBytes, err := encodingFn(value.EncodingMask, vv.Index(i).Index(j).Interface())
+				if err != nil {
+					return nil, err
+				}
+				buff.Write(tempBytes)
+			}
+		}
+
+		// ArrayDimensionsLength is the first dimension of the multidimensional matrix
+		err = binary.Write(buff, binary.LittleEndian, value.ArrayDimensionsLength)
+		if err != nil {
+			return nil, err
+		}
+
+		// ArrayDimensions record the second dimension of the multidimensional matrix
+		length := int32(len(value.ArrayDimensions))
+		err = binary.Write(buff, binary.LittleEndian, length)
+		if err != nil {
+			return nil, err
+		}
+		for i := 0; i < int(length); i++ {
+			err := binary.Write(buff, binary.LittleEndian, value.ArrayDimensions[i])
+			if err != nil {
+				return nil, err
+			}
+		}
+	case value.EncodingMask&0x80 != 0:
+		// one dimensional array
+		err := binary.Write(buff, binary.LittleEndian, value.ArrayLength)
+		if err != nil {
+			return nil, err
+		}
+		vv := reflect.ValueOf(value.Value)
+		for i := 0; i < vv.Len(); i++ {
+			tempBytes, err := encodingFn(value.EncodingMask, vv.Index(i).Interface())
+			if err != nil {
+				return nil, err
+			}
+			buff.Write(tempBytes)
+		}
+	default:
+		// basic type
+		tempBytes, err := encodingFn(value.EncodingMask, value.Value)
+		if err != nil {
+			return nil, err
+		}
+		buff.Write(tempBytes)
+	}
+
+	return buff.Bytes(), nil
+}
+
+func encodingFn(buff *bytes.Buffer) func(encodingMask byte, v interface{}) ([]byte, error) {
+	return func(encodingMask byte, v interface{}) ([]byte, error) {
 		tempBuff := bytes.NewBuffer(nil)
 		switch encodingMask & 0x3f {
 		case 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0d, 0x13:
@@ -518,69 +587,4 @@ func VariantEncoder(v interface{}) ([]byte, error) {
 		}
 		return tempBuff.Bytes(), nil
 	}
-
-	switch {
-	case value.EncodingMask&0xff == 0:
-		// null variant, nothing to do here
-	case value.EncodingMask&0x40 != 0:
-		// multidimensional matrix
-		// when Value stores a multidimensional matrix
-		// ArrayLength stores the number of all elements of the matrix.
-		err := binary.Write(buff, binary.LittleEndian, value.ArrayLength)
-		if err != nil {
-			return nil, err
-		}
-		vv := reflect.ValueOf(value.Value)
-		for i := 0; i < vv.Len(); i++ {
-			for j := 0; j < vv.Index(i).Len(); j++ {
-				tempBytes, err := encodingFn(value.EncodingMask, vv.Index(i).Index(j).Interface())
-				if err != nil {
-					return nil, err
-				}
-				buff.Write(tempBytes)
-			}
-		}
-
-		// ArrayDimensionsLength is the first dimension of the multidimensional matrix
-		err = binary.Write(buff, binary.LittleEndian, value.ArrayDimensionsLength)
-		if err != nil {
-			return nil, err
-		}
-
-		// ArrayDimensions record the second dimension of the multidimensional matrix
-		length := int32(len(value.ArrayDimensions))
-		err = binary.Write(buff, binary.LittleEndian, length)
-		if err != nil {
-			return nil, err
-		}
-		for i := 0; i < int(length); i++ {
-			err := binary.Write(buff, binary.LittleEndian, value.ArrayDimensions[i])
-			if err != nil {
-				return nil, err
-			}
-		}
-	case value.EncodingMask&0x80 != 0:
-		// one dimensional array
-		err := binary.Write(buff, binary.LittleEndian, value.ArrayLength)
-		if err != nil {
-			return nil, err
-		}
-		vv := reflect.ValueOf(value.Value)
-		for i := 0; i < vv.Len(); i++ {
-			tempBytes, err := encodingFn(value.EncodingMask, vv.Index(i).Interface())
-			if err != nil {
-				return nil, err
-			}
-			buff.Write(tempBytes)
-		}
-	default:
-		// basic type
-		tempBytes, err := encodingFn(value.EncodingMask, value.Value)
-		if err != nil {
-			return nil, err
-		}
-		buff.Write(tempBytes)
-	}
-
-	return buff.Bytes(), nil
 }
