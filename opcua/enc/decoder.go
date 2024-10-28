@@ -187,7 +187,7 @@ func (d *bufferedDecoder) fillMessageBody(msg *uamsg.Message) error {
 				return err
 			}
 			messageBody.Service = service
-		case uamsg.ObjectCreateSessionResponse_Encoding_DefaultBinary:
+		case uamsg.ObjectCreateSessionResponse_Encoding_DefaultBinary.Identifier:
 			service := &uamsg.CreateSessionResponse{}
 			err = d.readTo(reflect.ValueOf(service).Elem())
 			if err != nil {
@@ -214,6 +214,12 @@ func (d *bufferedDecoder) readTo(value reflect.Value) error {
 			return err
 		}
 		value.SetUint(uint64(dataByte))
+	case reflect.Uint16:
+		b, err := d.r.readN(2)
+		if err != nil {
+			return err
+		}
+		value.SetUint(uint64(binary.LittleEndian.Uint16(b)))
 	case reflect.Uint32:
 		b, err := d.r.readN(4)
 		if err != nil {
@@ -265,37 +271,10 @@ func (d *bufferedDecoder) readTo(value reflect.Value) error {
 		}
 		value.SetString(string(b))
 	case reflect.Slice:
-		b, err := d.r.readN(4)
-		if err != nil {
+		err, done := d.readToSlice(value, valueType)
+		if done {
 			return err
 		}
-		sliceLen := int32(binary.LittleEndian.Uint32(b))
-
-		if sliceLen == -1 {
-			return nil
-		}
-
-		sliceValue := reflect.MakeSlice(valueType, int(sliceLen), int(sliceLen))
-		for i := 0; i < sliceValue.Len(); i++ {
-			if valueType.Elem().Kind() == reflect.Ptr {
-				// valueType = []*MyStruct
-				// valueType.Elem() = *MyStruct
-				// valueType.Elem().Elem() = MyStruct,
-				structPtr := reflect.New(valueType.Elem().Elem())
-				err = d.readTo(structPtr.Elem())
-				if err != nil {
-					return err
-				}
-				sliceValue.Index(i).Set(structPtr)
-			} else {
-				// simple slice, like []uint32
-				err = d.readTo(sliceValue.Index(i))
-				if err != nil {
-					return err
-				}
-			}
-		}
-		value.Set(sliceValue)
 	case reflect.Ptr, reflect.Interface:
 		if value.IsNil() {
 			return errors.New("ptr or interface{} variant can not be nil")
@@ -305,35 +284,74 @@ func (d *bufferedDecoder) readTo(value reflect.Value) error {
 			return err
 		}
 	case reflect.Struct:
-		decoder, ok := SpecialStructDecoderMap[value.Type().Name()]
-		if !ok {
-			// recursively construct all members
-			for i := 0; i < value.NumField(); i++ {
-				if value.Field(i).Kind() == reflect.Ptr && value.Field(i).IsNil() {
-					structPtr := reflect.New(valueType.Field(i).Type.Elem())
-					err := d.readTo(structPtr.Elem())
-					if err != nil {
-						return err
-					}
-					value.Field(i).Set(structPtr)
-				} else {
-					err := d.readTo(value.Field(i))
-					if err != nil {
-						return err
-					}
-				}
-			}
-		} else {
-			err := decoder(d.r, value)
-			if err != nil {
-				return err
-			}
+		err := readToStruct(value, valueType, d)
+		if err != nil {
+			return err
 		}
-
 	default:
 		return errors.New("unsupported type")
 	}
 
+	return nil
+}
+
+func (d *bufferedDecoder) readToSlice(value reflect.Value, valueType reflect.Type) (error, bool) {
+	b, err := d.r.readN(4)
+	if err != nil {
+		return err, true
+	}
+	sliceLen := int32(binary.LittleEndian.Uint32(b))
+
+	if sliceLen == -1 {
+		return nil, true
+	}
+
+	sliceValue := reflect.MakeSlice(valueType, int(sliceLen), int(sliceLen))
+	for i := 0; i < sliceValue.Len(); i++ {
+		if valueType.Elem().Kind() == reflect.Ptr {
+			structPtr := reflect.New(valueType.Elem().Elem())
+			err = d.readTo(structPtr.Elem())
+			if err != nil {
+				return err, true
+			}
+			sliceValue.Index(i).Set(structPtr)
+		} else {
+			// simple slice, like []uint32
+			err = d.readTo(sliceValue.Index(i))
+			if err != nil {
+				return err, true
+			}
+		}
+	}
+	value.Set(sliceValue)
+	return nil, false
+}
+
+func readToStruct(value reflect.Value, valueType reflect.Type, d *bufferedDecoder) error {
+	decoder, ok := SpecialStructDecoderMap[value.Type().Name()]
+	if !ok {
+		// recursively construct all members
+		for i := 0; i < value.NumField(); i++ {
+			if value.Field(i).Kind() == reflect.Ptr && value.Field(i).IsNil() {
+				structPtr := reflect.New(valueType.Field(i).Type.Elem())
+				err := d.readTo(structPtr.Elem())
+				if err != nil {
+					return err
+				}
+				value.Field(i).Set(structPtr)
+			} else {
+				err := d.readTo(value.Field(i))
+				if err != nil {
+					return err
+				}
+			}
+		}
+	} else {
+		err := decoder(d.r, value)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

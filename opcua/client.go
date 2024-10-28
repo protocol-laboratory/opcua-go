@@ -12,7 +12,6 @@ import (
 
 	"github.com/libgox/addr"
 	"github.com/libgox/buffer"
-
 	"github.com/protocol-laboratory/opcua-go/opcua/ua"
 )
 

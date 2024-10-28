@@ -8,4 +8,6 @@
 extend-exclude = [
     "opcua/uamsg/std_nodeids_object.go",
     "opcua/uamsg/std_nodeids_variable.go",
+    "go.mod",
+    "go.sum",
 ]
