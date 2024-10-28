@@ -61,6 +61,8 @@ func NewServer(config *ServerConfig) (*Server, error) {
 	}
 	if config.Handler == nil {
 		server.handler = &NoopServerHandler{}
+	} else {
+		server.handler = config.Handler
 	}
 	server.logger.Info("server initialized", slog.String("host", config.Host), slog.Int("port", config.Port))
 	return server, nil
