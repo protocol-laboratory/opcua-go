@@ -8,6 +8,7 @@ const (
 	LenMessageType       = 3
 	LenReceiveBufferSize = 4
 	LenRequestId         = 4
+	LenSecureChannelId   = 4
 	LenSendBufferSize    = 4
 	LenSequenceNumber    = 4
 	LenVersion           = 4

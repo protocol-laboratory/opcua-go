@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/protocol-laboratory/opcua-go/opcua/ua"
 	"github.com/protocol-laboratory/opcua-go/opcua/uamsg"
 )
 
@@ -47,7 +48,7 @@ func (e *DefaultEncoder) Encode(v *uamsg.Message, chunkSize int) ([][]byte, erro
 
 	switch v.MessageType {
 	case uamsg.HelloMessageType, uamsg.AcknowledgeMessageType:
-		messageHeaderLength = 3 + 1 + 4
+		messageHeaderLength = ua.LenMessageType + ua.LenChunkType + ua.LenMessageSize
 		securityHeaderLength = 0
 		sequenceHeaderLength = 0
 	case uamsg.OpenSecureChannelMessageType, uamsg.MsgMessageType, uamsg.CloseSecureChannelMessageType:
@@ -56,9 +57,9 @@ func (e *DefaultEncoder) Encode(v *uamsg.Message, chunkSize int) ([][]byte, erro
 		if err != nil {
 			return nil, err
 		}
-		messageHeaderLength = 3 + 1 + 4 + 4
+		messageHeaderLength = ua.LenMessageType + ua.LenChunkType + ua.LenMessageSize + ua.LenSecureChannelId
 		securityHeaderLength = len(securityHeaderBytes)
-		sequenceHeaderLength = 8
+		sequenceHeaderLength = ua.LenSequenceNumber + ua.LenRequestId
 	default:
 		return nil, errors.New("not support message type")
 	}

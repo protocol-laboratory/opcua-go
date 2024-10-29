@@ -1,6 +1,7 @@
 package opcua
 
 import (
+	"sync"
 	"time"
 
 	"github.com/protocol-laboratory/opcua-go/opcua/uamsg"
@@ -12,6 +13,8 @@ type Session struct {
 	sessionId   uamsg.NodeId
 	sessionName string
 	serverNonce []byte
+
+	mutex sync.RWMutex
 
 	// TODO should check expiration -- func (s *Session) IsExpired() bool
 	requestedSessionTimeout time.Duration
@@ -27,6 +30,18 @@ func newSession(sessionName string, requestedSessionTimeout uamsg.Duration, maxR
 		requestedSessionTimeout: time.Duration(requestedSessionTimeout) * time.Millisecond,
 		maxResponseMessageSize:  maxResponseMessageSize,
 	}
+}
+
+func (s *Session) getSererNonce() []byte {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+	return s.serverNonce
+}
+
+func (s *Session) setServerNonce(serverNonce []byte) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	s.serverNonce = serverNonce
 }
 
 func getUniqueSessionId() uamsg.NodeId {
