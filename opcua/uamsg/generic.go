@@ -122,7 +122,7 @@ type SessionAuthenticationToken NodeId
 type ExtensionObject struct {
 	TypeId   *NodeId
 	Encoding byte
-	Body     string // optional, when Encoding=0x00, Body shouldn`t be passed
+	Body     interface{}
 }
 
 type GenericBody struct {

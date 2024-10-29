@@ -14,10 +14,11 @@ import (
 type SecureChannel struct {
 	conn           *Conn
 	channelId      uint32
-	channelIdGen   *ChannelIdGen
 	sessionManager *SessionManager
 	handler        ServerHandler
 	logger         *slog.Logger
+
+	readRequestNodeLimit uint32
 
 	receiveMaxChunkSize    uint32
 	sendMaxChunkSize       uint32
@@ -38,22 +39,16 @@ const (
 	ProtocolVersion uint32 = 0
 )
 
-func newSecureChannel(conn *Conn,
-	svcConf *ServerConfig,
-	channelId uint32,
-	channelIdGen *ChannelIdGen,
-	sessionManager *SessionManager,
-	handler ServerHandler,
-	logger *slog.Logger) *SecureChannel {
+func newSecureChannel(conn *Conn, svcConf *ServerConfig, channelId uint32, sessionManager *SessionManager, handler ServerHandler, logger *slog.Logger) *SecureChannel {
 	return &SecureChannel{
-		conn:           conn,
-		channelId:      channelId,
-		channelIdGen:   channelIdGen,
-		sessionManager: sessionManager,
-		handler:        handler,
-		logger:         logger,
-		decoder:        enc.NewDefaultDecoder(conn, int64(svcConf.ReceiverBufferSize)),
-		encoder:        enc.NewDefaultEncoder(svcConf.MaxResponseSize),
+		conn:                 conn,
+		channelId:            channelId,
+		sessionManager:       sessionManager,
+		handler:              handler,
+		readRequestNodeLimit: uint32(svcConf.ReadRequestNodeLimit),
+		logger:               logger,
+		decoder:              enc.NewDefaultDecoder(conn, int64(svcConf.ReceiverBufferSize)),
+		encoder:              enc.NewDefaultEncoder(svcConf.MaxResponseSize),
 	}
 }
 
@@ -157,16 +152,15 @@ func (secChan *SecureChannel) handleOpenSecureChannel() error {
 	}
 
 	var serverNonce []byte
-	channelId := secChan.channelIdGen.next()
 	tokenId := secChan.getNextTokenId()
 
 	rsp := &uamsg.Message{
 		MessageHeader: &uamsg.MessageHeader{
 			MessageType:     uamsg.OpenSecureChannelMessageType,
-			SecureChannelId: &channelId,
+			SecureChannelId: &secChan.channelId,
 		},
 		SecurityHeader: &uamsg.AsymmetricSecurityHeader{
-			SecurityPolicyUri:             []byte("http://opcfoundation.org/UA/SecurityPolicy#None"),
+			SecurityPolicyUri:             []byte(uamsg.SecurityPolicyUriNone),
 			SenderCertificate:             nil,
 			ReceiverCertificateThumbprint: nil,
 		},
@@ -197,7 +191,7 @@ func (secChan *SecureChannel) handleOpenSecureChannel() error {
 				},
 				ServerProtocolVersion: 0,
 				SecurityToken: &uamsg.ChannelSecurityToken{
-					ChannelID:       channelId,
+					ChannelID:       secChan.channelId,
 					TokenID:         tokenId,
 					CreatedAt:       util.GetCurrentUaTimestamp(),
 					RevisedLifetime: 3600000,
@@ -232,6 +226,7 @@ func (secChan *SecureChannel) handleRequest(req *uamsg.Message) error {
 
 	// TODO check channel id
 	// TODO check token id
+	// TODO check session (should discard requests on the closed session)
 
 	var rsp *uamsg.Message
 	var err error
