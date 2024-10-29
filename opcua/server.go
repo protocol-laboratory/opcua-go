@@ -126,7 +126,7 @@ func (s *Server) handleConn(conn *Conn) {
 	channelId := s.channelIdGen.next()
 	channelLogger := s.logger.With(LogRemoteAddr, conn.RemoteAddr().String()).With(LogChannelId, channelId)
 	channelLogger.Info("starting SecureChannel initialization")
-	secChannel := newSecureChannel(conn, s.config, channelId, s.channelIdGen, s.sessionManager, s.handler, channelLogger)
+	secChannel := newSecureChannel(conn, s.config, channelId, s.sessionManager, s.handler, channelLogger)
 	err := secChannel.open()
 	if err != nil {
 		_ = conn.Close()
