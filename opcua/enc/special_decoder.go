@@ -1,6 +1,8 @@
 package enc
 
 import (
+	"bufio"
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"reflect"
@@ -130,7 +132,7 @@ func NodeIdDecoder(r *superReader, v reflect.Value) error {
 		tempData.Namespace = binary.LittleEndian.Uint16(dataBytes)
 
 		tempStr := ""
-		err = StringDecoder(r, reflect.ValueOf(&tempData).Elem())
+		err = StringDecoder(r, reflect.ValueOf(&tempStr).Elem())
 		if err != nil {
 			return err
 		}
@@ -155,7 +157,7 @@ func NodeIdDecoder(r *superReader, v reflect.Value) error {
 		tempData.Namespace = binary.LittleEndian.Uint16(dataBytes)
 
 		var tempByteStr []byte
-		err = StringDecoder(r, reflect.ValueOf(&tempData).Elem())
+		err = ByteStringDecoder(r, reflect.ValueOf(&tempByteStr).Elem())
 		if err != nil {
 			return err
 		}
@@ -210,9 +212,44 @@ func ExtensionObjectDecoder(r *superReader, v reflect.Value) error {
 	case 0x01:
 		fallthrough
 	case 0x02:
+		// TODO fix encoder for extension object
+		var body string
 		err = StringDecoder(r, reflect.ValueOf(&tempData.Body).Elem())
 		if err != nil {
 			return err
+		}
+
+		tmpReader := &superReader{
+			r:    bufio.NewReader(bytes.NewBuffer([]byte(body))),
+			buff: bytes.NewBuffer(nil),
+		}
+
+		switch tempData.TypeId.Identifier {
+		// TODO only support UserNameIdentityToken yet
+		case uamsg.ObjectUserNameIdentityToken_Encoding_DefaultBinary.Identifier:
+			var token uamsg.UserNameIdentityToken
+			err = StringDecoder(tmpReader, reflect.ValueOf(&token.PolicyId).Elem())
+			if err != nil {
+				return err
+			}
+
+			err = StringDecoder(tmpReader, reflect.ValueOf(&token.UserName).Elem())
+			if err != nil {
+				return err
+			}
+
+			err = ByteStringDecoder(tmpReader, reflect.ValueOf(&token.Password).Elem())
+			if err != nil {
+				return err
+			}
+
+			err = StringDecoder(tmpReader, reflect.ValueOf(&token.EncryptionAlgorithm).Elem())
+			if err != nil {
+				return err
+			}
+			tempData.Body = token
+		default:
+			tempData.Body = body
 		}
 	}
 	v.Set(reflect.ValueOf(tempData))

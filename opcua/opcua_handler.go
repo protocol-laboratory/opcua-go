@@ -15,7 +15,11 @@ type ServerHandler interface {
 	BeforeGetEndpoints(conn *Conn, getEndpointsMessage *uamsg.GetEndpointsRequest) error
 	BeforeBrowse(conn *Conn, browseMessage *uamsg.BrowseRequest) error
 	BeforeRead(conn *Conn, readMessage *uamsg.ReadRequest) error
+
+	ReadDataValue(conn *Conn, nodeToRead *uamsg.ReadValueId) (*uamsg.Variant, error)
 }
+
+var _ ServerHandler = (*NoopServerHandler)(nil)
 
 type NoopServerHandler struct {
 }
@@ -60,4 +64,8 @@ func (n *NoopServerHandler) BeforeBrowse(conn *Conn, browseMessage *uamsg.Browse
 
 func (n *NoopServerHandler) BeforeRead(conn *Conn, readMessage *uamsg.ReadRequest) error {
 	return nil
+}
+
+func (n *NoopServerHandler) ReadDataValue(conn *Conn, nodeToRead *uamsg.ReadValueId) (*uamsg.Variant, error) {
+	return nil, nil
 }

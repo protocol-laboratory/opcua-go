@@ -2,25 +2,24 @@ package opcua
 
 import (
 	"github.com/libgox/gocollections/syncx"
-	"github.com/protocol-laboratory/opcua-go/opcua/uamsg"
 )
 
 type SessionManager struct {
-	sessions syncx.Map[uamsg.SessionAuthenticationToken, *Session]
+	sessions syncx.Map[string, *Session]
 }
 
 func newSessionManager() *SessionManager {
 	return &SessionManager{}
 }
 
-func (sm *SessionManager) add(sessionAuthenticationToken uamsg.SessionAuthenticationToken, session *Session) {
+func (sm *SessionManager) add(sessionAuthenticationToken string, session *Session) {
 	sm.sessions.Store(sessionAuthenticationToken, session)
 }
 
-func (sm *SessionManager) delete(sessionAuthenticationToken uamsg.SessionAuthenticationToken) {
+func (sm *SessionManager) delete(sessionAuthenticationToken string) {
 	sm.sessions.Delete(sessionAuthenticationToken)
 }
 
-func (sm *SessionManager) get(sessionAuthenticationToken uamsg.SessionAuthenticationToken) (*Session, bool) {
+func (sm *SessionManager) get(sessionAuthenticationToken string) (*Session, bool) {
 	return sm.sessions.Load(sessionAuthenticationToken)
 }

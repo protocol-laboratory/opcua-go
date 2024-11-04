@@ -32,7 +32,7 @@ func newSession(sessionName string, requestedSessionTimeout uamsg.Duration, maxR
 	}
 }
 
-func (s *Session) getSererNonce() []byte {
+func (s *Session) getServerNonce() []byte {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 	return s.serverNonce

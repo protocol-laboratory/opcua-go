@@ -77,7 +77,7 @@ func (d *bufferedDecoder) ReadMsg() (*uamsg.Message, error) {
 			messageHeaderLen = 3 + 1 + 4
 			securityHeaderLen = 0
 			sequenceHeaderLen = 0
-		case uamsg.OpenSecureChannelMessageType, uamsg.MsgMessageType:
+		case uamsg.OpenSecureChannelMessageType, uamsg.MsgMessageType, uamsg.CloseSecureChannelMessageType:
 			b, err = d.r.readN(4)
 			if err != nil {
 				return nil, err
@@ -238,14 +238,14 @@ func (d *bufferedDecoder) fillMessageBody(msg *uamsg.Message) error {
 			}
 			messageBody.Service = service
 		case uamsg.ObjectCloseSecureChannelRequest_Encoding_DefaultBinary.Identifier:
-			service := &uamsg.CloseSessionRequest{}
+			service := &uamsg.CloseSecureChannelRequest{}
 			err = d.readTo(reflect.ValueOf(service).Elem())
 			if err != nil {
 				return err
 			}
 			messageBody.Service = service
 		case uamsg.ObjectCloseSecureChannelResponse_Encoding_DefaultBinary.Identifier:
-			service := &uamsg.CloseSessionResponse{}
+			service := &uamsg.CloseSecureChannelResponse{}
 			err = d.readTo(reflect.ValueOf(service).Elem())
 			if err != nil {
 				return err

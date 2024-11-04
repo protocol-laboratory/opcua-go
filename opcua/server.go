@@ -3,6 +3,7 @@ package opcua
 import (
 	"fmt"
 	"net"
+	"runtime"
 	"sync"
 	"time"
 
@@ -114,6 +115,14 @@ func (s *Server) listenLoop() {
 			}
 		}
 		go func() {
+			defer func() {
+				if e := recover(); e != nil {
+					var buf [4096]byte
+					n := runtime.Stack(buf[:], false)
+					stackInfo := string(buf[:n])
+					s.logger.Error("panic, stack: \n"+stackInfo, slog.Any("err", e))
+				}
+			}()
 			s.handleConn(&Conn{
 				Conn: netConn,
 			})
