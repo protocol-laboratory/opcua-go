@@ -127,7 +127,7 @@ func (s *Server) listenLoop() {
 					var buf [4096]byte
 					n := runtime.Stack(buf[:], false)
 					stackInfo := string(buf[:n])
-					s.logger.Error("panic, stack: \n"+stackInfo, slog.Any("err", e))
+					s.logger.Error(fmt.Sprintf("%v cause panic, stack: %s", e, stackInfo))
 				}
 			}()
 			s.handleConn(&Conn{

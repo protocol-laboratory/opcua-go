@@ -401,7 +401,7 @@ func (secChan *SecureChannel) handleReadRequest(req *uamsg.Message) (*uamsg.Mess
 }
 
 func getService[T any](msg *uamsg.Message) (*T, error) {
-	generic, ok := msg.MessageBody.(uamsg.GenericBody)
+	generic, ok := msg.MessageBody.(*uamsg.GenericBody)
 	if !ok {
 		return nil, ErrInvalidMessageBody
 	}

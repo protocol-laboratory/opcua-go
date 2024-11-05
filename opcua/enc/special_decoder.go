@@ -214,7 +214,7 @@ func ExtensionObjectDecoder(r *superReader, v reflect.Value) error {
 	case 0x02:
 		// TODO fix encoder for extension object
 		var body string
-		err = StringDecoder(r, reflect.ValueOf(&tempData.Body).Elem())
+		err = StringDecoder(r, reflect.ValueOf(&body).Elem())
 		if err != nil {
 			return err
 		}
