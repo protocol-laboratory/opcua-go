@@ -201,7 +201,7 @@ func (secChan *SecureChannel) handleActivateSessionRequest(req *uamsg.Message) (
 		},
 		MessageBody: &uamsg.GenericBody{
 			TypeId: &uamsg.ExpandedNodeId{
-				NodeId: &uamsg.ObjectCloseSessionResponse_Encoding_DefaultBinary,
+				NodeId: &uamsg.ObjectActivateSessionResponse_Encoding_DefaultBinary,
 			},
 			Service: respSvc,
 		},
@@ -338,7 +338,7 @@ func (secChan *SecureChannel) handleGetEndpoints(req *uamsg.Message) (*uamsg.Mes
 		},
 		MessageBody: &uamsg.GenericBody{
 			TypeId: &uamsg.ExpandedNodeId{
-				NodeId: &uamsg.ObjectReadResponse_Encoding_DefaultBinary,
+				NodeId: &uamsg.ObjectGetEndpointsResponse_Encoding_DefaultBinary,
 			},
 			Service: respSvc,
 		},
