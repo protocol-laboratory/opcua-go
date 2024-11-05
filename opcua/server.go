@@ -14,7 +14,8 @@ type ServerConfig struct {
 	Host string
 	Port int
 
-	Handler ServerHandler
+	Interceptor ServerInterceptor
+	Handler     ServerHandler
 
 	ReceiverBufferSize int
 	MaxResponseSize    int
@@ -39,7 +40,8 @@ type Server struct {
 
 	listener net.Listener
 
-	handler ServerHandler
+	interceptor ServerInterceptor
+	handler     ServerHandler
 
 	logger *slog.Logger
 
@@ -63,6 +65,11 @@ func NewServer(config *ServerConfig) (*Server, error) {
 		sessionManager: newSessionManager(),
 		logger:         config.Logger,
 		quit:           make(chan bool),
+	}
+	if config.Interceptor == nil {
+		server.interceptor = &NoopServerInterceptor{}
+	} else {
+		server.interceptor = config.Interceptor
 	}
 	if config.Handler == nil {
 		server.handler = &NoopServerHandler{}
@@ -131,22 +138,22 @@ func (s *Server) listenLoop() {
 }
 
 func (s *Server) handleConn(conn *Conn) {
-	s.handler.ConnectionOpened(conn)
+	s.interceptor.ConnectionOpened(conn)
 	channelId := s.channelIdGen.next()
 	channelLogger := s.logger.With(LogRemoteAddr, conn.RemoteAddr().String()).With(LogChannelId, channelId)
 	channelLogger.Info("starting SecureChannel initialization")
-	secChannel := newSecureChannel(conn, s.config, channelId, s.sessionManager, s.handler, channelLogger)
+	secChannel := newSecureChannel(conn, s.config, channelId, s.sessionManager, s.interceptor, s.handler, channelLogger)
 	err := secChannel.open()
 	if err != nil {
 		_ = conn.Close()
-		s.handler.ConnectionClosed(conn)
+		s.interceptor.ConnectionClosed(conn)
 		channelLogger.Error("failed to open SecureChannel", slog.Any("err", err.Error()))
 		return
 	}
 	err = secChannel.serve()
 	if err != nil {
 		_ = conn.Close()
-		s.handler.ConnectionClosed(conn)
+		s.interceptor.ConnectionClosed(conn)
 		secChannel.logger.Error("processing request error", slog.Any("err", err))
 	}
 }

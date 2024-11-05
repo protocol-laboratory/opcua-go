@@ -15,6 +15,7 @@ type SecureChannel struct {
 	conn           *Conn
 	channelId      uint32
 	sessionManager *SessionManager
+	interceptor    ServerInterceptor
 	handler        ServerHandler
 	logger         *slog.Logger
 
@@ -39,11 +40,18 @@ const (
 	ProtocolVersion uint32 = 0
 )
 
-func newSecureChannel(conn *Conn, svcConf *ServerConfig, channelId uint32, sessionManager *SessionManager, handler ServerHandler, logger *slog.Logger) *SecureChannel {
+func newSecureChannel(conn *Conn,
+	svcConf *ServerConfig,
+	channelId uint32,
+	sessionManager *SessionManager,
+	interceptor ServerInterceptor,
+	handler ServerHandler,
+	logger *slog.Logger) *SecureChannel {
 	return &SecureChannel{
 		conn:                 conn,
 		channelId:            channelId,
 		sessionManager:       sessionManager,
+		interceptor:          interceptor,
 		handler:              handler,
 		readRequestNodeLimit: uint32(svcConf.ReadRequestNodeLimit),
 		logger:               logger,
@@ -89,7 +97,7 @@ func (secChan *SecureChannel) handleHello() error {
 	secChan.maxResponseMessageSize = helloBody.MaxMessageSize
 	secChan.endpointUrl = helloBody.EndpointUrl
 
-	err = secChan.handler.BeforeHello(secChan.conn, helloBody)
+	err = secChan.interceptor.BeforeHello(secChan.conn, helloBody)
 	if err != nil {
 		return err
 	}
