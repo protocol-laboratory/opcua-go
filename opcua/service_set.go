@@ -18,6 +18,11 @@ func (secChan *SecureChannel) handleOpenSecureChannelRequest(req *uamsg.Message)
 		return nil, err
 	}
 
+	err = secChan.interceptor.AfterOpenSecureChannel(secChan.conn, svc, nil)
+	if err != nil {
+		return nil, err
+	}
+
 	return nil, errors.New("open new secure channel is not supported")
 }
 
@@ -28,6 +33,11 @@ func (secChan *SecureChannel) handleCloseSecureChannelRequest(req *uamsg.Message
 	}
 
 	err = secChan.interceptor.BeforeCloseSecureChannel(secChan.conn, svc)
+	if err != nil {
+		return nil, err
+	}
+
+	err = secChan.interceptor.AfterCloseSecureChannel(secChan.conn, svc, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -71,6 +81,41 @@ func (secChan *SecureChannel) handleCreateSessionRequest(req *uamsg.Message) (*u
 		SecurityLevel:       2,
 	}
 
+	respSvc := &uamsg.CreateSessionResponse{
+		Header: &uamsg.ResponseHeader{
+			Timestamp:     util.GetCurrentUaTimestamp(),
+			RequestHandle: svc.Header.RequestHandle,
+			ServiceResult: uint32(uamsg.ErrorCodeGood),
+			ServiceDiagnostics: &uamsg.DiagnosticInfo{
+				EncodingMask: 0x00,
+			},
+			StringTable: nil,
+			AdditionalHeader: &uamsg.ExtensionObject{
+				TypeId: &uamsg.NodeId{
+					EncodingType: uamsg.TwoByte,
+					Identifier:   byte(0),
+				},
+				Encoding: 0x00,
+			},
+		},
+		SessionId:             &session.sessionId,
+		AuthenticationToken:   token,
+		RevisedSessionTimeout: uamsg.Duration(session.requestedSessionTimeout.Milliseconds()),
+		ServerNonce:           session.getServerNonce(),
+		MaxRequestMessageSize: session.maxResponseMessageSize,
+		// TODO endpoints description needed
+		ServerEndpoints: []*uamsg.EndpointDescription{ep},
+		ServerSignature: &uamsg.SignatureData{
+			Algorithm: "",
+			Signature: nil,
+		},
+	}
+
+	err = secChan.interceptor.AfterCreateSession(secChan.conn, svc, respSvc)
+	if err != nil {
+		return nil, err
+	}
+
 	rsp := &uamsg.Message{
 		MessageHeader: &uamsg.MessageHeader{
 			MessageType:     uamsg.MsgMessageType,
@@ -87,35 +132,7 @@ func (secChan *SecureChannel) handleCreateSessionRequest(req *uamsg.Message) (*u
 			TypeId: &uamsg.ExpandedNodeId{
 				NodeId: &uamsg.ObjectCreateSessionResponse_Encoding_DefaultBinary,
 			},
-			Service: &uamsg.CreateSessionResponse{
-				Header: &uamsg.ResponseHeader{
-					Timestamp:     util.GetCurrentUaTimestamp(),
-					RequestHandle: svc.Header.RequestHandle,
-					ServiceResult: uint32(uamsg.ErrorCodeGood),
-					ServiceDiagnostics: &uamsg.DiagnosticInfo{
-						EncodingMask: 0x00,
-					},
-					StringTable: nil,
-					AdditionalHeader: &uamsg.ExtensionObject{
-						TypeId: &uamsg.NodeId{
-							EncodingType: uamsg.TwoByte,
-							Identifier:   byte(0),
-						},
-						Encoding: 0x00,
-					},
-				},
-				SessionId:             &session.sessionId,
-				AuthenticationToken:   token,
-				RevisedSessionTimeout: uamsg.Duration(session.requestedSessionTimeout.Milliseconds()),
-				ServerNonce:           session.getServerNonce(),
-				MaxRequestMessageSize: session.maxResponseMessageSize,
-				// TODO endpoints description needed
-				ServerEndpoints: []*uamsg.EndpointDescription{ep},
-				ServerSignature: &uamsg.SignatureData{
-					Algorithm: "",
-					Signature: nil,
-				},
-			},
+			Service: respSvc,
 		},
 	}
 
@@ -145,6 +162,31 @@ func (secChan *SecureChannel) handleActivateSessionRequest(req *uamsg.Message) (
 	nextServerNonce := util.GenerateRandomBytes(32)
 	session.setServerNonce(nextServerNonce)
 
+	respSvc := &uamsg.ActivateSessionResponse{
+		Header: &uamsg.ResponseHeader{
+			Timestamp:     util.GetCurrentUaTimestamp(),
+			RequestHandle: svc.Header.RequestHandle,
+			ServiceResult: uint32(uamsg.ErrorCodeGood),
+			ServiceDiagnostics: &uamsg.DiagnosticInfo{
+				EncodingMask: 0x00,
+			},
+			StringTable: nil,
+			AdditionalHeader: &uamsg.ExtensionObject{
+				TypeId: &uamsg.NodeId{
+					EncodingType: uamsg.TwoByte,
+					Identifier:   byte(0),
+				},
+				Encoding: 0x00,
+			},
+		},
+		ServerNonce: nextServerNonce,
+	}
+
+	err = secChan.interceptor.AfterActivateSession(secChan.conn, svc, respSvc)
+	if err != nil {
+		return nil, err
+	}
+
 	return &uamsg.Message{
 		MessageHeader: &uamsg.MessageHeader{
 			MessageType:     uamsg.MsgMessageType,
@@ -161,25 +203,7 @@ func (secChan *SecureChannel) handleActivateSessionRequest(req *uamsg.Message) (
 			TypeId: &uamsg.ExpandedNodeId{
 				NodeId: &uamsg.ObjectCloseSessionResponse_Encoding_DefaultBinary,
 			},
-			Service: &uamsg.ActivateSessionResponse{
-				Header: &uamsg.ResponseHeader{
-					Timestamp:     util.GetCurrentUaTimestamp(),
-					RequestHandle: svc.Header.RequestHandle,
-					ServiceResult: uint32(uamsg.ErrorCodeGood),
-					ServiceDiagnostics: &uamsg.DiagnosticInfo{
-						EncodingMask: 0x00,
-					},
-					StringTable: nil,
-					AdditionalHeader: &uamsg.ExtensionObject{
-						TypeId: &uamsg.NodeId{
-							EncodingType: uamsg.TwoByte,
-							Identifier:   byte(0),
-						},
-						Encoding: 0x00,
-					},
-				},
-				ServerNonce: nextServerNonce,
-			},
+			Service: respSvc,
 		},
 	}, nil
 }
@@ -205,6 +229,29 @@ func (secChan *SecureChannel) handleCloseSessionRequest(req *uamsg.Message) (*ua
 	}
 	secChan.sessionManager.delete(string(token))
 
+	respSvc := &uamsg.CloseSessionResponse{
+		Header: &uamsg.ResponseHeader{
+			Timestamp:     util.GetCurrentUaTimestamp(),
+			RequestHandle: svc.Header.RequestHandle,
+			ServiceResult: uint32(uamsg.ErrorCodeGood),
+			ServiceDiagnostics: &uamsg.DiagnosticInfo{
+				EncodingMask: 0x00,
+			},
+			StringTable: nil,
+			AdditionalHeader: &uamsg.ExtensionObject{
+				TypeId: &uamsg.NodeId{
+					EncodingType: uamsg.TwoByte,
+					Identifier:   byte(0),
+				},
+				Encoding: 0x00,
+			},
+		},
+	}
+	err = secChan.interceptor.AfterCloseSession(secChan.conn, svc, respSvc)
+	if err != nil {
+		return nil, err
+	}
+
 	return &uamsg.Message{
 		MessageHeader: &uamsg.MessageHeader{
 			MessageType:     uamsg.MsgMessageType,
@@ -221,24 +268,7 @@ func (secChan *SecureChannel) handleCloseSessionRequest(req *uamsg.Message) (*ua
 			TypeId: &uamsg.ExpandedNodeId{
 				NodeId: &uamsg.ObjectCloseSessionResponse_Encoding_DefaultBinary,
 			},
-			Service: &uamsg.CloseSessionResponse{
-				Header: &uamsg.ResponseHeader{
-					Timestamp:     util.GetCurrentUaTimestamp(),
-					RequestHandle: svc.Header.RequestHandle,
-					ServiceResult: uint32(uamsg.ErrorCodeGood),
-					ServiceDiagnostics: &uamsg.DiagnosticInfo{
-						EncodingMask: 0x00,
-					},
-					StringTable: nil,
-					AdditionalHeader: &uamsg.ExtensionObject{
-						TypeId: &uamsg.NodeId{
-							EncodingType: uamsg.TwoByte,
-							Identifier:   byte(0),
-						},
-						Encoding: 0x00,
-					},
-				},
-			},
+			Service: respSvc,
 		},
 	}, nil
 }
@@ -252,6 +282,48 @@ func (secChan *SecureChannel) handleGetEndpoints(req *uamsg.Message) (*uamsg.Mes
 	if err != nil {
 		return nil, err
 	}
+	respSvc := &uamsg.GetEndpointsResponse{
+		Header: &uamsg.ResponseHeader{
+			Timestamp:     util.GetCurrentUaTimestamp(),
+			RequestHandle: svc.Header.RequestHandle,
+			ServiceResult: uint32(uamsg.ErrorCodeGood),
+			ServiceDiagnostics: &uamsg.DiagnosticInfo{
+				EncodingMask: 0x00,
+			},
+			StringTable: nil,
+			AdditionalHeader: &uamsg.ExtensionObject{
+				TypeId: &uamsg.NodeId{
+					EncodingType: uamsg.TwoByte,
+					Identifier:   byte(0),
+				},
+				Encoding: 0x00,
+			},
+		},
+		// TODO can support build endpoint description from callback
+		Endpoints: []uamsg.EndpointDescription{
+			{
+				EndpointUrl: svc.EndpointUrl,
+				Server: &uamsg.ApplicationDescription{
+					ApplicationName: &uamsg.LocalizedText{},
+					ApplicationType: 0,
+				},
+				SecurityMode:      uamsg.MessageSecurityModeNone,
+				SecurityPolicyUri: uamsg.SecurityPolicyUriNone,
+				UserIdentityTokens: []*uamsg.UserTokenPolicy{
+					{
+						PolicyId:  "username",
+						TokenType: uamsg.UserTokenTypeUsername,
+					},
+				},
+				TransportProfileUri: "http://opcfoundation.org/UA-Profile/Transport/uatcp-uasc-uabinary",
+			},
+		},
+	}
+	err = secChan.interceptor.AfterGetEndpoints(secChan.conn, svc, respSvc)
+	if err != nil {
+		return nil, err
+	}
+
 	return &uamsg.Message{
 		MessageHeader: &uamsg.MessageHeader{
 			MessageType:     uamsg.MsgMessageType,
@@ -268,43 +340,7 @@ func (secChan *SecureChannel) handleGetEndpoints(req *uamsg.Message) (*uamsg.Mes
 			TypeId: &uamsg.ExpandedNodeId{
 				NodeId: &uamsg.ObjectReadResponse_Encoding_DefaultBinary,
 			},
-			Service: &uamsg.GetEndpointsResponse{
-				Header: &uamsg.ResponseHeader{
-					Timestamp:     util.GetCurrentUaTimestamp(),
-					RequestHandle: svc.Header.RequestHandle,
-					ServiceResult: uint32(uamsg.ErrorCodeGood),
-					ServiceDiagnostics: &uamsg.DiagnosticInfo{
-						EncodingMask: 0x00,
-					},
-					StringTable: nil,
-					AdditionalHeader: &uamsg.ExtensionObject{
-						TypeId: &uamsg.NodeId{
-							EncodingType: uamsg.TwoByte,
-							Identifier:   byte(0),
-						},
-						Encoding: 0x00,
-					},
-				},
-				// TODO can support build endpoint description from callback
-				Endpoints: []uamsg.EndpointDescription{
-					{
-						EndpointUrl: svc.EndpointUrl,
-						Server: &uamsg.ApplicationDescription{
-							ApplicationName: &uamsg.LocalizedText{},
-							ApplicationType: 0,
-						},
-						SecurityMode:      uamsg.MessageSecurityModeNone,
-						SecurityPolicyUri: uamsg.SecurityPolicyUriNone,
-						UserIdentityTokens: []*uamsg.UserTokenPolicy{
-							{
-								PolicyId:  "username",
-								TokenType: uamsg.UserTokenTypeUsername,
-							},
-						},
-						TransportProfileUri: "http://opcfoundation.org/UA-Profile/Transport/uatcp-uasc-uabinary",
-					},
-				},
-			},
+			Service: respSvc,
 		},
 	}, nil
 }
@@ -315,6 +351,10 @@ func (secChan *SecureChannel) handleBrowseRequest(req *uamsg.Message) (*uamsg.Me
 		return nil, err
 	}
 	err = secChan.interceptor.BeforeBrowse(secChan.conn, svc)
+	if err != nil {
+		return nil, err
+	}
+	err = secChan.interceptor.AfterBrowse(secChan.conn, svc, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -331,6 +371,10 @@ func (secChan *SecureChannel) handleReadRequest(req *uamsg.Message) (*uamsg.Mess
 		return nil, err
 	}
 	respSvc, err := secChan.handler.HandleRead(secChan.conn, svc)
+	if err != nil {
+		return nil, err
+	}
+	err = secChan.interceptor.AfterRead(secChan.conn, svc, respSvc)
 	if err != nil {
 		return nil, err
 	}

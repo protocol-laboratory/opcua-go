@@ -120,6 +120,11 @@ func (secChan *SecureChannel) handleHello() error {
 		return err
 	}
 
+	err = secChan.interceptor.AfterHello(secChan.conn, helloBody)
+	if err != nil {
+		return err
+	}
+
 	for _, content := range bytes {
 		length, err := secChan.conn.Write(content)
 		if err != nil {
@@ -149,18 +154,50 @@ func (secChan *SecureChannel) handleOpenSecureChannel() error {
 		return errors.New("invalid message body, expected GenericBody")
 	}
 
-	openSecChanBody, ok := genericBody.Service.(*uamsg.OpenSecureChannelRequest)
+	svc, ok := genericBody.Service.(*uamsg.OpenSecureChannelRequest)
 	if !ok {
 		return errors.New("invalid service, expected OpenSecureChannelRequest")
 	}
 
 	// TODO only support NONE mode yet
-	if openSecChanBody.SecurityMode != uamsg.MessageSecurityModeNone {
+	if svc.SecurityMode != uamsg.MessageSecurityModeNone {
 		return errors.New("only support NONE security mode")
 	}
 
 	var serverNonce []byte
 	tokenId := secChan.getNextTokenId()
+
+	respSvc := &uamsg.OpenSecureChannelResponse{
+		Header: &uamsg.ResponseHeader{
+			Timestamp:     util.GetCurrentUaTimestamp(),
+			RequestHandle: svc.Header.RequestHandle,
+			ServiceResult: 0,
+			ServiceDiagnostics: &uamsg.DiagnosticInfo{
+				EncodingMask: 0x00,
+			},
+			StringTable: nil,
+			AdditionalHeader: &uamsg.ExtensionObject{
+				TypeId: &uamsg.NodeId{
+					EncodingType: uamsg.TwoByte,
+					Identifier:   byte(0),
+				},
+				Encoding: 0x00,
+			},
+		},
+		ServerProtocolVersion: 0,
+		SecurityToken: &uamsg.ChannelSecurityToken{
+			ChannelID:       secChan.channelId,
+			TokenID:         tokenId,
+			CreatedAt:       util.GetCurrentUaTimestamp(),
+			RevisedLifetime: 3600000,
+		},
+		ServerNonce: serverNonce,
+	}
+
+	err = secChan.interceptor.AfterOpenSecureChannel(secChan.conn, svc, respSvc)
+	if err != nil {
+		return err
+	}
 
 	rsp := &uamsg.Message{
 		MessageHeader: &uamsg.MessageHeader{
@@ -180,32 +217,7 @@ func (secChan *SecureChannel) handleOpenSecureChannel() error {
 			TypeId: &uamsg.ExpandedNodeId{
 				NodeId: &uamsg.ObjectOpenSecureChannelResponse_Encoding_DefaultBinary,
 			},
-			Service: &uamsg.OpenSecureChannelResponse{
-				Header: &uamsg.ResponseHeader{
-					Timestamp:     util.GetCurrentUaTimestamp(),
-					RequestHandle: openSecChanBody.Header.RequestHandle,
-					ServiceResult: 0,
-					ServiceDiagnostics: &uamsg.DiagnosticInfo{
-						EncodingMask: 0x00,
-					},
-					StringTable: nil,
-					AdditionalHeader: &uamsg.ExtensionObject{
-						TypeId: &uamsg.NodeId{
-							EncodingType: uamsg.TwoByte,
-							Identifier:   byte(0),
-						},
-						Encoding: 0x00,
-					},
-				},
-				ServerProtocolVersion: 0,
-				SecurityToken: &uamsg.ChannelSecurityToken{
-					ChannelID:       secChan.channelId,
-					TokenID:         tokenId,
-					CreatedAt:       util.GetCurrentUaTimestamp(),
-					RevisedLifetime: 3600000,
-				},
-				ServerNonce: serverNonce,
-			},
+			Service: respSvc,
 		},
 	}
 
